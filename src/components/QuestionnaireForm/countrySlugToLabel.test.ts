@@ -15,5 +15,9 @@ describe("countrySlugToLabel", () => {
     expect(result).toBe("Northern Ireland");
   });
 
-  it("keeps joining words like 'and' in lowercase", () => {});
+  it("keeps joining words like 'and' in lowercase", () => {
+    const result = countrySlugToLabel("england-and-wales");
+
+    expect(result).toBe("England and Wales");
+  });
 });
