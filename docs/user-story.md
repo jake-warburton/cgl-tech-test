@@ -6,10 +6,10 @@ cannot simply issue a 14 day prescription and give out two weeks worth of medica
 so the medication must be picked up in instalments. We need to calculate how much
 medication a service user picks up each day.
 All measurements are in milliliters (ml), and can be between 0 and 60ml.
-The approach
+###The approach
 You are free to write this in any language you like, and to decide whether you want
 visual input and output, or console based output.
-The challenge
+###The challenge
 You should set up a git repository that you can share with us. We should see separate
 commits for each stage.
 
