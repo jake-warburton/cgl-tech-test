@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -22,7 +22,30 @@ describe("QuestionnaireForm", () => {
     ]);
   });
 
-  it("renders seven availability toggles, Mon-Sun, none selected initially", () => {});
+  it("renders seven availability toggles, Mon-Sun, none selected initially", () => {
+    render(<QuestionnaireForm onSubmit={vi.fn()} />);
+
+    const group = screen.getByRole("group", {
+      name: "What days of the week is the service user generally available?",
+    });
+    const days = within(group).getAllByRole("checkbox");
+
+    expect(days).toHaveLength(7);
+
+    const labels = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+    days.forEach((day, index) => {
+      expect(day).toHaveAccessibleName(labels[index]);
+      expect(day).not.toBeChecked();
+    });
+  });
 
   it("renders the three prescription type options with the question wording from the story", () => {});
 
