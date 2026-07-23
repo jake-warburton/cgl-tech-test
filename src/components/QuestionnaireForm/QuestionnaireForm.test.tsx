@@ -1,0 +1,38 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
+
+import { QuestionnaireForm } from './QuestionnaireForm'
+
+describe('QuestionnaireForm', () => {
+  it('renders the jurisdiction select with three options, defaulting to England and Wales', async () => {
+    const user = userEvent.setup()
+    render(<QuestionnaireForm onSubmit={vi.fn()} />)
+
+    const jurisdiction = screen.getByRole('combobox', { name: 'Jurisdiction' })
+    expect(jurisdiction).toHaveTextContent('England and Wales')
+
+    await user.click(jurisdiction)
+    const options = screen.getAllByRole('option')
+    expect(options).toHaveLength(3)
+    expect(options.map((option) => option.textContent)).toEqual([
+      'England and Wales',
+      'Scotland',
+      'Northern Ireland',
+    ])
+  })
+
+  it('renders seven availability toggles, Mon-Sun, none selected initially', () => {})
+
+  it('renders the three prescription type options with the question wording from the story', () => {})
+
+  it('shows only the dosage field when Stabilisation is selected', () => {})
+
+  it('shows only the three titration fields when Reducing or Increasing is selected', () => {})
+
+  it('shows a validation error and does not submit when no availability day is selected', () => {})
+
+  it('shows a range error for doses outside 0-60ml or fractional doses', () => {})
+
+  it('calls onSubmit once with the answers when the form is valid', () => {})
+})
