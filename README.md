@@ -34,6 +34,22 @@ These are deliberate decisions where the story is ambiguous or silent. Each one 
 - In a real-world system I would not bundle this data: a daily server-side CRON job would re-fetch the gov.uk JSON (bank holidays can be announced at short notice: the Queen's funeral in 2022 had ~10 days' notice, and there was a chance for another English bank holiday if England won the World Cup), keeping a last-known-good copy locally and raising an alert if fetching failed after some retries. For this test's scope, bundled data with a documented retrieval date keeps the program deterministic and offline-runnable
 - Pharmacy opening hours are out of scope; bank holidays are the only closures modelled
 
+## Security Considerations
+
+- The app is fully client-side: no service-user data is transmitted, stored or logged, and everything lives in memory for the session only
+- No personal information is collected at all; the form deliberately never asks who the service user is, only the schedule parameters
+- Input is validated at the boundary: doses and dates are checked before the scheduling logic ever sees them, and whole-ml integers avoid floating-point errors
+- Bank holiday data is bundled at build time, so the app makes no runtime network requests and there are no third-party calls to audit
+- In a real deployment this data would sit alongside clinical records, so authentication, audit logging of issued schedules and server-side validation would all be required before persisting anything
+
+## Real-world Persistence
+
+This test needs no database, but in a real system issued schedules would be persisted so they can be reviewed and reconciled later. I would model this relationally:
+
+- A `schedules` table holding one row per issued schedule (prescription type, doses, start date, jurisdiction, issued timestamp)
+- A `schedule_days` table holding one row per day (date, dose, pick-up amount, any warning flags), keyed to its schedule
+- This supports the reconciliation case from the caveats above: if a new bank holiday is announced mid-schedule, the affected future rows can be recomputed and diffed against what was issued, while past rows remain immutable
+
 ## Planned Approach
 
 - TypeScript: Type safe language which I am comfortable with
