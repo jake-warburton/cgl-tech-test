@@ -35,8 +35,10 @@ export const distributePickups = ({
     //  Get current date's day of week
     const currentDayOfWeek = format(dates[i], "eeee") as DayOfWeek;
 
-    //  Find if current day is a collection day
-    const isCollectableDay = availableDays.includes(currentDayOfWeek);
+    //  Find if current day is a collection day and NOT a bank holiday
+    const isCollectableDay =
+      availableDays.includes(currentDayOfWeek) &&
+      !bankHolidays.includes(dates[i]);
 
     const dosageToPickupToday = isCollectableDay ? accumulatedDosage : 0;
 
