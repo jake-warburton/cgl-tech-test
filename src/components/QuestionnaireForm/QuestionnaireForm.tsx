@@ -10,6 +10,7 @@ import {
   RadioGroup,
   Select,
   Stack,
+  TextField,
 } from "@mui/material";
 
 import bankHolidays from "../../data/bank-holidays.json";
@@ -34,6 +35,7 @@ interface QuestionnaireFormProps {
 
 export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
   const [country, setCountry] = useState("england-and-wales");
+  const [prescriptionType, setPrescriptionType] = useState("");
 
   return (
     <Stack spacing={3}>
@@ -68,7 +70,10 @@ export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
         <FormLabel component="legend">
           What type of prescription is it?
         </FormLabel>
-        <RadioGroup>
+        <RadioGroup
+          onChange={(event) => setPrescriptionType(event.target.value)}
+          value={prescriptionType}
+        >
           {prescriptionTypes.map((type) => (
             <FormControlLabel
               key={type}
@@ -79,6 +84,10 @@ export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
           ))}
         </RadioGroup>
       </FormControl>
+
+      {prescriptionType === "Stabilisation" && (
+        <TextField label="What is the dosage? (0-60ml)" type="number" />
+      )}
     </Stack>
   );
 };
