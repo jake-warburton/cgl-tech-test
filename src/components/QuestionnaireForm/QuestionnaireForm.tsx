@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Button,
   Checkbox,
@@ -18,109 +17,17 @@ import {
 
 import bankHolidays from "../../data/bank-holidays.json";
 import { countrySlugToLabel } from "./countrySlugToLabel";
-
-const daysOfWeek = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-
-const prescriptionTypes = ["Reducing", "Increasing", "Stabilisation"];
+import { useQuestionnaireForm } from "./useQuestionnaireForm";
+import type { QuestionnaireAnswers } from "./types";
+import { daysOfWeek, prescriptionTypes } from "./constants";
 
 interface QuestionnaireFormProps {
-  onSubmit: (obj: {
-    country: string;
-    availableDays: string[];
-    prescriptionType: string;
-    stabilisationDose?: number;
-    initialDose?: number;
-    doseChange?: number;
-    changePeriod?: number;
-  }) => void;
+  onSubmit: (obj: QuestionnaireAnswers) => void;
 }
 
 export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
-  const [country, setCountry] = useState("england-and-wales");
-
-  const [availableDays, setAvailableDays] = useState<string[]>([]);
-  const [dayError, setDayError] = useState(false);
-
-  const [prescriptionType, setPrescriptionType] = useState("");
-
-  const [stabilisationDose, setStabilisationDose] = useState("");
-  const [doseError, setDoseError] = useState(false);
-
-  const [initialDose, setInitialDose] = useState("");
-  const [doseChange, setDoseChange] = useState("");
-  const [changePeriod, setChangePeriod] = useState("");
-
-  const handleToggleDaySelected = (day: string) => {
-    const dayIndex = availableDays.indexOf(day);
-
-    if (dayIndex === -1) {
-      return setAvailableDays([...availableDays, day]);
-    }
-
-    return setAvailableDays(availableDays.filter((d) => d !== day));
-  };
-
-  const handleUpdateStabilisationDose = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => setStabilisationDose(e.target.value);
-
-  const handleUpdateInitialDose = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setInitialDose(e.target.value);
-
-  const handleUpdateDoseChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setDoseChange(e.target.value);
-
-  const handleUpdateChangePeriod = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setChangePeriod(e.target.value);
-
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!availableDays.length) return setDayError(true);
-
-    const numericStabilisationDose = Number(stabilisationDose);
-
-    if (
-      prescriptionType === "Stabilisation" &&
-      (!Number.isInteger(numericStabilisationDose) ||
-        numericStabilisationDose > 60 ||
-        numericStabilisationDose < 0)
-    )
-      return setDoseError(true);
-
-    const numericInitialDose = Number(initialDose);
-    const numericDoseChange = Number(doseChange);
-    const numericChangePeriod = Number(changePeriod);
-
-    setDayError(false);
-    setDoseError(false);
-
-    if (prescriptionType === "Stabilisation") {
-      return onSubmit({
-        country,
-        availableDays,
-        prescriptionType,
-        stabilisationDose: numericStabilisationDose,
-      });
-    }
-
-    return onSubmit({
-      country,
-      availableDays,
-      prescriptionType,
-      initialDose: numericInitialDose,
-      doseChange: numericDoseChange,
-      changePeriod: numericChangePeriod,
-    });
-  };
+  const { handleSubmit, formValues, formHandlers, formErrors } =
+    useQuestionnaireForm({ onSubmit });
 
   return (
     <Stack spacing={3} component="form" onSubmit={handleSubmit}>
@@ -129,8 +36,8 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
         <Select
           labelId="country-label"
           label="Country"
-          value={country}
-          onChange={(event) => setCountry(event.target.value)}
+          value={formValues.country}
+          onChange={formHandlers.handleUpdateCountry}
         >
           {Object.keys(bankHolidays).map((slug) => (
             <MenuItem key={slug} value={slug}>
@@ -140,7 +47,7 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
         </Select>
       </FormControl>
 
-      <FormControl component="fieldset" error={dayError}>
+      <FormControl component="fieldset" error={formErrors.dayError}>
         <FormLabel component="legend">
           What days of the week is the service user generally available?
         </FormLabel>
@@ -151,27 +58,31 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
               label={day}
               control={
                 <Checkbox
-                  onChange={() => handleToggleDaySelected(day)}
-                  checked={availableDays.includes(day)}
+                  value={day}
+                  checked={formValues.availableDays.includes(day)}
+                  onChange={formHandlers.handleToggleDayAvailable}
                 />
               }
             />
           ))}
         </FormGroup>
-        {dayError && (
+        {formErrors.dayError && (
           <FormHelperText>
             Select at least one day the service user is available
           </FormHelperText>
         )}
       </FormControl>
 
-      <FormControl component="fieldset">
+      <FormControl
+        component="fieldset"
+        error={formErrors.prescriptionTypeError}
+      >
         <FormLabel component="legend">
           What type of prescription is it?
         </FormLabel>
         <RadioGroup
-          onChange={(event) => setPrescriptionType(event.target.value)}
-          value={prescriptionType}
+          onChange={formHandlers.handleUpdatePrescriptionType}
+          value={formValues.prescriptionType}
         >
           {prescriptionTypes.map((type) => (
             <FormControlLabel
@@ -182,40 +93,44 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
             />
           ))}
         </RadioGroup>
+        {formErrors.prescriptionTypeError && (
+          <FormHelperText>Select a prescription type</FormHelperText>
+        )}
       </FormControl>
 
-      {prescriptionType === "Stabilisation" && (
+      {formValues.prescriptionType === "Stabilisation" && (
         <TextField
           label="What is the dosage? (0-60ml)"
           type="number"
-          value={stabilisationDose}
-          onChange={handleUpdateStabilisationDose}
-          error={doseError}
+          value={formValues.stabilisationDose}
+          onChange={formHandlers.handleUpdateStabilisationDose}
+          error={formErrors.doseError}
           helperText={
-            doseError && "Dosage must be a whole number between 0 and 60"
+            formErrors.doseError &&
+            "Dosage must be a whole number between 0 and 60"
           }
         />
       )}
 
-      {["Reducing", "Increasing"].includes(prescriptionType) && (
+      {["Reducing", "Increasing"].includes(formValues.prescriptionType) && (
         <>
           <TextField
             label="Initial Daily Dose (ml)"
             type="number"
-            value={initialDose}
-            onChange={handleUpdateInitialDose}
+            value={formValues.initialDose}
+            onChange={formHandlers.handleUpdateInitialDose}
           />
           <TextField
             label="Increase/Decrease (ml)"
             type="number"
-            value={doseChange}
-            onChange={handleUpdateDoseChange}
+            value={formValues.doseChange}
+            onChange={formHandlers.handleUpdateDoseChange}
           />
           <TextField
             label="Every (days)"
             type="number"
-            value={changePeriod}
-            onChange={handleUpdateChangePeriod}
+            value={formValues.changePeriod}
+            onChange={formHandlers.handleUpdateChangePeriod}
           />
         </>
       )}
