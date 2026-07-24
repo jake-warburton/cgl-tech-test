@@ -25,7 +25,11 @@ describe("generateSchedule", () => {
       date: "2026-08-24",
       dose: 60,
       pickup: 120,
+      isBankHoliday: false,
     });
+
+    // the August bank holiday Monday is flagged for the display
+    expect(schedule[7].isBankHoliday).toBe(true);
 
     expect(schedule.map((day) => day.pickup)).toEqual([
       120, 0, 120, 0, 290, 0, 0, 0, 0, 110, 0, 165, 0, 0,

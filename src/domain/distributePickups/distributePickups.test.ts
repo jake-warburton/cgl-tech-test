@@ -15,9 +15,9 @@ describe("distributePickups", () => {
     });
 
     expect(result).toEqual([
-      { date: "2026-08-03", dose: 60, pickup: 60 },
-      { date: "2026-08-04", dose: 60, pickup: 60 },
-      { date: "2026-08-05", dose: 55, pickup: 55 },
+      { date: "2026-08-03", dose: 60, pickup: 60, isBankHoliday: false },
+      { date: "2026-08-04", dose: 60, pickup: 60, isBankHoliday: false },
+      { date: "2026-08-05", dose: 55, pickup: 55, isBankHoliday: false },
     ]);
   });
 
@@ -31,9 +31,9 @@ describe("distributePickups", () => {
     });
 
     expect(result).toEqual([
-      { date: "2026-08-03", dose: 60, pickup: 120 },
-      { date: "2026-08-04", dose: 60, pickup: 0 },
-      { date: "2026-08-05", dose: 55, pickup: 55 },
+      { date: "2026-08-03", dose: 60, pickup: 120, isBankHoliday: false },
+      { date: "2026-08-04", dose: 60, pickup: 0, isBankHoliday: false },
+      { date: "2026-08-05", dose: 55, pickup: 55, isBankHoliday: false },
     ]);
   });
 
@@ -48,10 +48,10 @@ describe("distributePickups", () => {
     });
 
     expect(result).toEqual([
-      { date: "2026-08-07", dose: 60, pickup: 180 },
-      { date: "2026-08-08", dose: 60, pickup: 0 },
-      { date: "2026-08-09", dose: 60, pickup: 0 },
-      { date: "2026-08-10", dose: 55, pickup: 55 },
+      { date: "2026-08-07", dose: 60, pickup: 180, isBankHoliday: false },
+      { date: "2026-08-08", dose: 60, pickup: 0, isBankHoliday: false },
+      { date: "2026-08-09", dose: 60, pickup: 0, isBankHoliday: false },
+      { date: "2026-08-10", dose: 55, pickup: 55, isBankHoliday: false },
     ]);
   });
 
@@ -72,11 +72,11 @@ describe("distributePickups", () => {
 
     // Friday collects its own dose plus the weekend and the holiday Monday
     expect(result).toEqual([
-      { date: "2026-08-28", dose: 55, pickup: 220 },
-      { date: "2026-08-29", dose: 55, pickup: 0 },
-      { date: "2026-08-30", dose: 55, pickup: 0 },
-      { date: "2026-08-31", dose: 55, pickup: 0 },
-      { date: "2026-09-01", dose: 55, pickup: 55 },
+      { date: "2026-08-28", dose: 55, pickup: 220, isBankHoliday: false },
+      { date: "2026-08-29", dose: 55, pickup: 0, isBankHoliday: false },
+      { date: "2026-08-30", dose: 55, pickup: 0, isBankHoliday: false },
+      { date: "2026-08-31", dose: 55, pickup: 0, isBankHoliday: true },
+      { date: "2026-09-01", dose: 55, pickup: 55, isBankHoliday: false },
     ]);
   });
 
@@ -91,9 +91,9 @@ describe("distributePickups", () => {
     });
 
     expect(result).toEqual([
-      { date: "2026-08-02", dose: 60, pickup: 0 },
-      { date: "2026-08-03", dose: 60, pickup: 120 },
-      { date: "2026-08-04", dose: 60, pickup: 60 },
+      { date: "2026-08-02", dose: 60, pickup: 0, isBankHoliday: false },
+      { date: "2026-08-03", dose: 60, pickup: 120, isBankHoliday: false },
+      { date: "2026-08-04", dose: 60, pickup: 60, isBankHoliday: false },
     ]);
   });
 

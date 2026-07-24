@@ -7,6 +7,7 @@ const day = (date: string, dose: number, pickup: number) => ({
   date,
   dose,
   pickup,
+  isBankHoliday: false,
 });
 
 const stabilisationAnswers: QuestionnaireAnswers = {

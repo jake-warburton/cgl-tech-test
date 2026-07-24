@@ -49,6 +49,7 @@ export const distributePickups = ({
       date: dates[i],
       dose: doses[i],
       pickup: dosageToPickupToday,
+      isBankHoliday: bankHolidays.includes(dates[i]),
     });
   }
 

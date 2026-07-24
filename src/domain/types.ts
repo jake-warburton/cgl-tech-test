@@ -19,6 +19,7 @@ export interface ScheduleDay {
   date: string;
   dose: number;
   pickup: number;
+  isBankHoliday: boolean;
 }
 
 export interface ScheduleWarning {

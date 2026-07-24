@@ -5,9 +5,9 @@ import type { ScheduleDay, ScheduleWarning } from "../../domain/types";
 import { ScheduleDisplay } from "./ScheduleDisplay";
 
 const schedule: ScheduleDay[] = [
-  { date: "2026-08-24", dose: 60, pickup: 120 },
-  { date: "2026-08-25", dose: 60, pickup: 0 },
-  { date: "2026-08-26", dose: 60, pickup: 120 },
+  { date: "2026-08-24", dose: 60, pickup: 120, isBankHoliday: false },
+  { date: "2026-08-25", dose: 60, pickup: 0, isBankHoliday: false },
+  { date: "2026-08-26", dose: 60, pickup: 120, isBankHoliday: false },
 ];
 
 const warnings: ScheduleWarning[] = [
@@ -27,7 +27,7 @@ describe("ScheduleDisplay", () => {
     expect(days).toHaveLength(3);
 
     expect(within(days[0]).getByText("Mon 24 Aug")).toBeInTheDocument();
-    expect(within(days[0]).getByText("Pick up: 120ml")).toBeInTheDocument();
+    expect(within(days[0]).getByText("120ml")).toBeInTheDocument();
     expect(within(days[0]).getByText("Dose: 60ml")).toBeInTheDocument();
   });
 
@@ -35,7 +35,7 @@ describe("ScheduleDisplay", () => {
     render(<ScheduleDisplay schedule={schedule} warnings={[]} />);
 
     const days = screen.getAllByRole("listitem");
-    expect(within(days[1]).getByText("Pick up: 0ml")).toBeInTheDocument();
+    expect(within(days[1]).getByText("0ml")).toBeInTheDocument();
   });
 
   it("announces each warning as an alert", () => {
