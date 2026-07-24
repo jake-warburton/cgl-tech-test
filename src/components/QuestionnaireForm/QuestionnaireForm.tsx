@@ -6,6 +6,7 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
+  IconButton,
   InputLabel,
   MenuItem,
   Radio,
@@ -13,6 +14,7 @@ import {
   Select,
   Stack,
   TextField,
+  Tooltip,
 } from "@mui/material";
 
 import bankHolidaysByCountry from "../../data/bank-holidays.json";
@@ -21,6 +23,7 @@ import { useQuestionnaireForm } from "./useQuestionnaireForm";
 import { prescriptionTypes } from "./constants";
 import { daysOfWeek } from "../../domain/constants";
 import type { QuestionnaireAnswers } from "../../domain/types";
+import InfoOutlined from "@mui/icons-material/InfoOutlined";
 
 interface QuestionnaireFormProps {
   onSubmit: (obj: QuestionnaireAnswers) => void;
@@ -32,21 +35,33 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
 
   return (
     <Stack spacing={3} component="form" onSubmit={handleSubmit}>
-      <FormControl>
-        <InputLabel id="country-label">Country</InputLabel>
-        <Select
-          labelId="country-label"
-          label="Country"
-          value={formValues.country}
-          onChange={formHandlers.handleUpdateCountry}
-        >
-          {Object.keys(bankHolidaysByCountry).map((slug) => (
-            <MenuItem key={slug} value={slug}>
-              {countrySlugToLabel(slug)}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Stack
+        direction="row"
+        spacing={1}
+        useFlexGap
+        sx={{ alignItems: "center" }}
+      >
+        <FormControl sx={{ flexGrow: 1 }}>
+          <InputLabel id="country-label">Country</InputLabel>
+          <Select
+            labelId="country-label"
+            label="Country"
+            value={formValues.country}
+            onChange={formHandlers.handleUpdateCountry}
+          >
+            {Object.keys(bankHolidaysByCountry).map((slug) => (
+              <MenuItem key={slug} value={slug}>
+                {countrySlugToLabel(slug)}
+              </MenuItem>
+            ))}
+          </Select>{" "}
+        </FormControl>
+        <Tooltip title="The country determines which bank holidays are taken into account">
+          <IconButton aria-label="About the country selection" size="small">
+            <InfoOutlined fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Stack>
 
       <FormControl component="fieldset" error={!!formErrors.availableDays}>
         <FormLabel component="legend">
