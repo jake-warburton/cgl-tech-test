@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import type { QuestionnaireAnswers } from "../types";
 import { deriveWarnings } from "./deriveWarnings";
 
 const day = (date: string, dose: number, pickup: number) => ({
@@ -7,6 +8,22 @@ const day = (date: string, dose: number, pickup: number) => ({
   dose,
   pickup,
 });
+
+const stabilisationAnswers: QuestionnaireAnswers = {
+  country: "england-and-wales",
+  availableDays: ["Monday", "Wednesday", "Friday"],
+  prescriptionType: "Stabilisation",
+  stabilisationDose: 60,
+};
+
+const reducingAnswers: QuestionnaireAnswers = {
+  country: "england-and-wales",
+  availableDays: ["Monday", "Wednesday", "Friday"],
+  prescriptionType: "Reducing",
+  initialDose: 60,
+  doseChange: 5,
+  changePeriod: 7,
+};
 
 describe("deriveWarnings", () => {
   it("returns no warnings for a typical schedule", () => {
@@ -21,7 +38,9 @@ describe("deriveWarnings", () => {
       day("2026-08-09", 60, 0),
     ];
 
-    expect(deriveWarnings({ schedule })).toEqual([]);
+    expect(
+      deriveWarnings({ schedule, answers: stabilisationAnswers }),
+    ).toEqual([]);
   });
 
   it("warns when a single pickup covers more than four days", () => {
@@ -35,12 +54,42 @@ describe("deriveWarnings", () => {
       day("2026-09-02", 55, 55),
     ];
 
-    expect(deriveWarnings({ schedule })).toEqual([
+    expect(deriveWarnings({ schedule, answers: reducingAnswers })).toEqual([
       {
         type: "large-pickup",
         date: "2026-08-28",
         message:
           "The pick-up on 2026-08-28 covers 5 days of medication. Confirm this is appropriate before issuing.",
+      },
+    ]);
+  });
+
+  it("warns when an increasing prescription has been capped at 60ml", () => {
+    // 55ml increasing by 4ml every 2 days would reach 63ml on the fifth
+    // day; the dose calculation caps it at 60ml instead
+    const increasingAnswers: QuestionnaireAnswers = {
+      country: "england-and-wales",
+      availableDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      prescriptionType: "Increasing",
+      initialDose: 55,
+      doseChange: 4,
+      changePeriod: 2,
+    };
+    const schedule = [
+      day("2026-08-03", 55, 55),
+      day("2026-08-04", 55, 55),
+      day("2026-08-05", 59, 59),
+      day("2026-08-06", 59, 59),
+      day("2026-08-07", 60, 60),
+      day("2026-08-08", 60, 60),
+    ];
+
+    expect(deriveWarnings({ schedule, answers: increasingAnswers })).toEqual([
+      {
+        type: "dose-capped",
+        date: "2026-08-07",
+        message:
+          "The dose reaches the 60ml maximum on 2026-08-07 and has been capped. Confirm the prescription with the prescriber.",
       },
     ]);
   });
