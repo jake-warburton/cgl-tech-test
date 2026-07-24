@@ -71,4 +71,21 @@ describe("distributePickups", () => {
       { date: "2026-09-01", dose: 55, pickup: 55 },
     ]);
   });
+
+  it("rolls leading non-collectable days forward onto the first collectable day", () => {
+    // 2026-08-02 is a Sunday and Sunday is not available: there is no
+    // earlier day to roll back onto, so its dose is collected on the Monday
+    const result = distributePickups({
+      dates: ["2026-08-02", "2026-08-03", "2026-08-04"],
+      doses: [60, 60, 60],
+      availableDays: ["Monday", "Tuesday"],
+      bankHolidays: [],
+    });
+
+    expect(result).toEqual([
+      { date: "2026-08-02", dose: 60, pickup: 0 },
+      { date: "2026-08-03", dose: 60, pickup: 120 },
+      { date: "2026-08-04", dose: 60, pickup: 60 },
+    ]);
+  });
 });

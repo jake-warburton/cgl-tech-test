@@ -30,6 +30,7 @@ export const distributePickups = ({
   let accumulatedDosage = 0;
 
   for (let i = dates.length - 1; i > -1; i -= 1) {
+    //  Add today's dose to the pickup amount
     accumulatedDosage += doses[i];
 
     //  Get current date's day of week
@@ -52,5 +53,27 @@ export const distributePickups = ({
     });
   }
 
-  return pickupsArray.reverse();
+  const schedule = pickupsArray.reverse();
+
+  if (accumulatedDosage > 0) {
+    //  There are some doses near the start without a collection day,
+    //  This shouldn't happen in practice because we don't
+    //  allow them to start the prescription on a non-collection day in the UI
+    for (let i = 0; i < schedule.length; i += 1) {
+      //  Get current date's day of week
+      const currentDayOfWeek = format(dates[i], "eeee") as DayOfWeek;
+
+      //  Find if current day is a collection day and NOT a bank holiday
+      const isCollectableDay =
+        availableDays.includes(currentDayOfWeek) &&
+        !bankHolidays.includes(dates[i]);
+
+      if (isCollectableDay) {
+        schedule[i].pickup += accumulatedDosage;
+        break;
+      }
+    }
+  }
+
+  return schedule;
 };
