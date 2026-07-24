@@ -4,9 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import { QuestionnaireForm } from "./QuestionnaireForm";
 
-const titrationFields = [
+const doseChangeLabels = {
+  Reducing: "Decrease (ml)",
+  Increasing: "Increase (ml)",
+};
+
+const titrationFields = (type: "Reducing" | "Increasing") => [
   "Initial Daily Dose (ml)",
-  "Increase/Decrease (ml)",
+  doseChangeLabels[type],
   "Every (days)",
 ];
 
@@ -97,20 +102,22 @@ describe("QuestionnaireForm", () => {
       screen.getByRole("spinbutton", { name: dosageName }),
     ).toBeInTheDocument();
 
-    titrationFields.forEach((name) => {
-      expect(
-        screen.queryByRole("spinbutton", { name }),
-      ).not.toBeInTheDocument();
-    });
+    ["Initial Daily Dose (ml)", "Decrease (ml)", "Increase (ml)", "Every (days)"].forEach(
+      (name) => {
+        expect(
+          screen.queryByRole("spinbutton", { name }),
+        ).not.toBeInTheDocument();
+      },
+    );
   });
 
-  it.each(["Reducing", "Increasing"])(
+  it.each(["Reducing", "Increasing"] as const)(
     "shows only the three titration fields when %s is selected",
     async (type) => {
       const user = userEvent.setup();
       render(<QuestionnaireForm onSubmit={vi.fn()} />);
 
-      titrationFields.forEach((name) => {
+      titrationFields(type).forEach((name) => {
         expect(
           screen.queryByRole("spinbutton", { name }),
         ).not.toBeInTheDocument();
@@ -118,7 +125,7 @@ describe("QuestionnaireForm", () => {
 
       await user.click(screen.getByRole("radio", { name: type }));
 
-      titrationFields.forEach((name) => {
+      titrationFields(type).forEach((name) => {
         expect(screen.getByRole("spinbutton", { name })).toBeInTheDocument();
       });
 
@@ -219,8 +226,8 @@ describe("QuestionnaireForm", () => {
   it.each([
     ["Initial Daily Dose (ml)", "61"],
     ["Initial Daily Dose (ml)", ""],
-    ["Increase/Decrease (ml)", "0.5"],
-    ["Increase/Decrease (ml)", ""],
+    ["Decrease (ml)", "0.5"],
+    ["Decrease (ml)", ""],
   ])(
     "shows a range error and does not submit when %s is '%s'",
     async (field, value) => {
@@ -236,10 +243,7 @@ describe("QuestionnaireForm", () => {
           "Initial Daily Dose (ml)",
           field === "Initial Daily Dose (ml)" ? value : "30",
         ],
-        [
-          "Increase/Decrease (ml)",
-          field === "Increase/Decrease (ml)" ? value : "5",
-        ],
+        ["Decrease (ml)", field === "Decrease (ml)" ? value : "5"],
         ["Every (days)", "3"],
       ];
       for (const [name, text] of fieldValues) {
@@ -271,7 +275,7 @@ describe("QuestionnaireForm", () => {
         "30",
       );
       await user.type(
-        screen.getByRole("spinbutton", { name: "Increase/Decrease (ml)" }),
+        screen.getByRole("spinbutton", { name: "Increase (ml)" }),
         "5",
       );
       if (period !== "") {
@@ -382,7 +386,7 @@ describe("QuestionnaireForm", () => {
       "50",
     );
     await user.type(
-      screen.getByRole("spinbutton", { name: "Increase/Decrease (ml)" }),
+      screen.getByRole("spinbutton", { name: "Decrease (ml)" }),
       "5",
     );
     await user.type(

@@ -81,9 +81,20 @@ describe("validateForm", () => {
     ).toEqual({
       initialDose:
         "Initial Daily Dose (ml) must be a whole number between 0 and 60",
-      doseChange:
-        "Increase/Decrease (ml) must be a whole number between 0 and 60",
+      doseChange: "Decrease (ml) must be a whole number between 0 and 60",
       changePeriod: "Every (days) must be a whole number of 1 or more",
+    });
+  });
+
+  it("labels the dose change error by direction", () => {
+    expect(
+      validateForm({
+        ...validTitrationForm,
+        prescriptionType: "Increasing",
+        doseChange: "0.5",
+      }),
+    ).toEqual({
+      doseChange: "Increase (ml) must be a whole number between 0 and 60",
     });
   });
 
