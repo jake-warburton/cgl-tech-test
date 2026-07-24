@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { QuestionnaireForm } from "./QuestionnaireForm";
 
+const titrationFields = ["Initial Daily Dose", "Increase/Decrease", "Every"];
+
 describe("QuestionnaireForm", () => {
   it("renders the country select with three options, defaulting to England and Wales", async () => {
     const user = userEvent.setup();
@@ -78,11 +80,6 @@ describe("QuestionnaireForm", () => {
       screen.getByRole("spinbutton", { name: dosageName }),
     ).toBeInTheDocument();
 
-    const titrationFields = [
-      "Initial Daily Dose",
-      "Increase/Decrease",
-      "Every",
-    ];
     titrationFields.forEach((name) => {
       expect(
         screen.queryByRole("spinbutton", { name }),
@@ -90,7 +87,31 @@ describe("QuestionnaireForm", () => {
     });
   });
 
-  it("shows only the three titration fields when Reducing or Increasing is selected", () => {});
+  it.each(["Reducing", "Increasing"])(
+    "shows only the three titration fields when %s is selected",
+    async (type) => {
+      const user = userEvent.setup();
+      render(<QuestionnaireForm onSubmit={vi.fn()} />);
+
+      titrationFields.forEach((name) => {
+        expect(
+          screen.queryByRole("spinbutton", { name }),
+        ).not.toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("radio", { name: type }));
+
+      titrationFields.forEach((name) => {
+        expect(screen.getByRole("spinbutton", { name })).toBeInTheDocument();
+      });
+
+      expect(
+        screen.queryByRole("spinbutton", {
+          name: "What is the dosage? (0-60ml)",
+        }),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it("shows a validation error and does not submit when no availability day is selected", () => {});
 
