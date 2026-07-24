@@ -1,13 +1,12 @@
 import { useState } from "react";
 import type { SelectChangeEvent } from "@mui/material";
+import type { FormErrors, FormValues } from "./types";
+import { validateForm } from "./validation/validateForm";
 import type {
   DayOfWeek,
-  FormErrors,
-  FormValues,
   PrescriptionType,
   QuestionnaireAnswers,
-} from "./types";
-import { validateForm } from "./validation/validateForm";
+} from "../../domain/types";
 
 interface UseQuestionnaireFormProps {
   onSubmit: (obj: QuestionnaireAnswers) => void;

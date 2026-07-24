@@ -18,8 +18,8 @@ import {
 import bankHolidays from "../../data/bank-holidays.json";
 import { countrySlugToLabel } from "./countrySlugToLabel";
 import { useQuestionnaireForm } from "./useQuestionnaireForm";
-import type { QuestionnaireAnswers } from "./types";
 import { daysOfWeek, prescriptionTypes } from "./constants";
+import type { QuestionnaireAnswers } from "../../domain/types";
 
 interface QuestionnaireFormProps {
   onSubmit: (obj: QuestionnaireAnswers) => void;
