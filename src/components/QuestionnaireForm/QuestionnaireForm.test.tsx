@@ -113,7 +113,19 @@ describe("QuestionnaireForm", () => {
     },
   );
 
-  it("shows a validation error and does not submit when no availability day is selected", () => {});
+  it("shows a validation error and does not submit when no availability day is selected", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("radio", { name: "Stabilisation" }));
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    expect(
+      screen.getByText("Select at least one day the service user is available"),
+    ).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
 
   it("shows a range error for doses outside 0-60ml or fractional doses", () => {});
 
