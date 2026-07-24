@@ -88,6 +88,14 @@ export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
       {prescriptionType === "Stabilisation" && (
         <TextField label="What is the dosage? (0-60ml)" type="number" />
       )}
+
+      {["Reducing", "Increasing"].includes(prescriptionType) && (
+        <>
+          <TextField label="Initial Daily Dose" type="number" />
+          <TextField label="Increase/Decrease" type="number" />
+          <TextField label="Every" type="number" />
+        </>
+      )}
     </Stack>
   );
 };
