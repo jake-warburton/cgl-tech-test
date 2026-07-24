@@ -145,7 +145,9 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
         </>
       )}
 
-      <Button type="submit">Submit</Button>
+      <Button type="submit" variant="contained">
+        Submit
+      </Button>
     </Stack>
   );
 };

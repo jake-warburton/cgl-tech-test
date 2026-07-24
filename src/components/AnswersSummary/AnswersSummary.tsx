@@ -38,7 +38,9 @@ export const AnswersSummary = ({ answers, onEdit }: AnswersSummaryProps) => (
       <Typography>{dosageDescription(answers)}</Typography>
       <Typography>{`Starts ${format(answers.startDate, "EEE d MMM yyyy")}`}</Typography>
       <Typography>{countrySlugToLabel(answers.country)}</Typography>
-      <Button onClick={onEdit}>Edit answers</Button>
+      <Button variant="contained" onClick={onEdit}>
+        Edit answers
+      </Button>
     </Stack>
   </Card>
 );
