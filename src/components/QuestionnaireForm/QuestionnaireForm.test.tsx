@@ -188,6 +188,88 @@ describe("QuestionnaireForm", () => {
     },
   );
 
+  it("shows a range error and does not submit when the dosage is left empty", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("checkbox", { name: "Monday" }));
+    await user.click(screen.getByRole("radio", { name: "Stabilisation" }));
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    expect(
+      screen.getByText("Dosage must be a whole number between 0 and 60"),
+    ).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["Initial Daily Dose (ml)", "61"],
+    ["Initial Daily Dose (ml)", ""],
+    ["Increase/Decrease (ml)", "0.5"],
+    ["Increase/Decrease (ml)", ""],
+  ])(
+    "shows a range error and does not submit when %s is '%s'",
+    async (field, value) => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+      await user.click(screen.getByRole("checkbox", { name: "Monday" }));
+      await user.click(screen.getByRole("radio", { name: "Reducing" }));
+
+      const fieldValues = [
+        ["Initial Daily Dose (ml)", field === "Initial Daily Dose (ml)" ? value : "30"],
+        ["Increase/Decrease (ml)", field === "Increase/Decrease (ml)" ? value : "5"],
+        ["Every (days)", "3"],
+      ];
+      for (const [name, text] of fieldValues) {
+        if (text !== "") {
+          await user.type(screen.getByRole("spinbutton", { name }), text);
+        }
+      }
+      await user.click(screen.getByRole("button", { name: "Submit" }));
+
+      expect(
+        screen.getByText(`${field} must be a whole number between 0 and 60`),
+      ).toBeInTheDocument();
+      expect(onSubmit).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["0", "0.5", ""])(
+    "shows an error and does not submit when the change period is '%s'",
+    async (period) => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+      await user.click(screen.getByRole("checkbox", { name: "Monday" }));
+      await user.click(screen.getByRole("radio", { name: "Increasing" }));
+
+      await user.type(
+        screen.getByRole("spinbutton", { name: "Initial Daily Dose (ml)" }),
+        "30",
+      );
+      await user.type(
+        screen.getByRole("spinbutton", { name: "Increase/Decrease (ml)" }),
+        "5",
+      );
+      if (period !== "") {
+        await user.type(
+          screen.getByRole("spinbutton", { name: "Every (days)" }),
+          period,
+        );
+      }
+      await user.click(screen.getByRole("button", { name: "Submit" }));
+
+      expect(
+        screen.getByText("Every (days) must be a whole number of 1 or more"),
+      ).toBeInTheDocument();
+      expect(onSubmit).not.toHaveBeenCalled();
+    },
+  );
+
   it("calls onSubmit once with the answers when a stabilisation form is valid", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
