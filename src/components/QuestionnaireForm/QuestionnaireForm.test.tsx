@@ -118,12 +118,15 @@ describe("QuestionnaireForm", () => {
     const onSubmit = vi.fn();
     render(<QuestionnaireForm onSubmit={onSubmit} />);
 
+    const errorMessage =
+      "Select at least one day the service user is available";
+
     await user.click(screen.getByRole("radio", { name: "Stabilisation" }));
+    expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
+
     await user.click(screen.getByRole("button", { name: "Submit" }));
 
-    expect(
-      screen.getByText("Select at least one day the service user is available"),
-    ).toBeInTheDocument();
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
     expect(onSubmit).not.toHaveBeenCalled();
   });
 

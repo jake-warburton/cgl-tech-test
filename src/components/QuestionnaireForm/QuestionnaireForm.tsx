@@ -1,8 +1,10 @@
 import {
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormHelperText,
   FormLabel,
   InputLabel,
   MenuItem,
@@ -33,12 +35,33 @@ interface QuestionnaireFormProps {
   onSubmit: () => void;
 }
 
-export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
+export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
   const [country, setCountry] = useState("england-and-wales");
   const [prescriptionType, setPrescriptionType] = useState("");
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [dayError, setDayError] = useState(false);
+
+  const handleToggleDaySelected = (day: string) => {
+    const dayIndex = selectedDays.indexOf(day);
+
+    if (dayIndex === -1) {
+      return setSelectedDays([...selectedDays, day]);
+    }
+
+    return setSelectedDays(selectedDays.filter((d) => d !== day));
+  };
+
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!selectedDays.length) return setDayError(true);
+
+    setDayError(false);
+    return onSubmit();
+  };
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={3} component="form" onSubmit={handleSubmit}>
       <FormControl>
         <InputLabel id="country-label">Country</InputLabel>
         <Select
@@ -55,15 +78,29 @@ export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
         </Select>
       </FormControl>
 
-      <FormControl component="fieldset">
+      <FormControl component="fieldset" error={dayError}>
         <FormLabel component="legend">
           What days of the week is the service user generally available?
         </FormLabel>
         <FormGroup>
           {daysOfWeek.map((day) => (
-            <FormControlLabel key={day} label={day} control={<Checkbox />} />
+            <FormControlLabel
+              key={day}
+              label={day}
+              control={
+                <Checkbox
+                  onChange={() => handleToggleDaySelected(day)}
+                  checked={selectedDays.includes(day)}
+                />
+              }
+            />
           ))}
         </FormGroup>
+        {dayError && (
+          <FormHelperText>
+            Select at least one day the service user is available
+          </FormHelperText>
+        )}
       </FormControl>
 
       <FormControl component="fieldset">
@@ -96,6 +133,8 @@ export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
           <TextField label="Every" type="number" />
         </>
       )}
+
+      <Button type="submit">Submit</Button>
     </Stack>
   );
 };
