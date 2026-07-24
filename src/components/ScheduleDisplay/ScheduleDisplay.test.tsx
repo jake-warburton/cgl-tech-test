@@ -28,7 +28,13 @@ describe("ScheduleDisplay", () => {
 
     expect(within(days[0]).getByText("Mon 24 Aug")).toBeInTheDocument();
     expect(within(days[0]).getByText("120ml")).toBeInTheDocument();
-    expect(within(days[0]).getByText("Dose: 60ml")).toBeInTheDocument();
+
+    // the pick-up covering two days shows its per-day breakdown
+    expect(within(days[0]).getByText("Covers 2 days")).toBeInTheDocument();
+    expect(within(days[0]).getByText("60 · 60 ml/day")).toBeInTheDocument();
+
+    // a single-day pick-up shows just its dose
+    expect(within(days[2]).getByText("60 ml")).toBeInTheDocument();
   });
 
   it("shows a 0ml pick-up on non-collection days", () => {
@@ -36,6 +42,7 @@ describe("ScheduleDisplay", () => {
 
     const days = screen.getAllByRole("listitem");
     expect(within(days[1]).getByText("0ml")).toBeInTheDocument();
+    expect(within(days[1]).getByText("No pick-up")).toBeInTheDocument();
   });
 
   it("announces each warning as an alert", () => {

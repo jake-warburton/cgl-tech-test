@@ -23,7 +23,7 @@ describe("App", () => {
     });
     await user.click(screen.getByRole("button", { name: "Submit" }));
 
-    expect(screen.getByText("Pick up: 420ml")).toBeInTheDocument();
+    expect(screen.getByText("420ml")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent(
       "covers 14 days of medication",
     );
@@ -56,6 +56,6 @@ describe("App", () => {
     expect(
       screen.getByRole("spinbutton", { name: "What is the dosage? (0-60ml)" }),
     ).toHaveValue(30);
-    expect(screen.queryByText("Pick up: 420ml")).not.toBeInTheDocument();
+    expect(screen.queryByText("420ml")).not.toBeInTheDocument();
   });
 });

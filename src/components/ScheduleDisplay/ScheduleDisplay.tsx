@@ -1,7 +1,8 @@
-import { Alert, List, ListItem, Stack, Typography } from "@mui/material";
-import { format } from "date-fns";
+import { Alert, Box, Stack, Typography } from "@mui/material";
 
+import { getPickupCoverage } from "../../domain/getPickupCoverage/getPickupCoverage";
 import type { ScheduleDay, ScheduleWarning } from "../../domain/types";
+import { ScheduleDisplayCard } from "./components/ScheduleDayCard/ScheduleDayCard";
 
 interface ScheduleDisplayProps {
   schedule: ScheduleDay[];
@@ -24,17 +25,25 @@ export const ScheduleDisplay = ({
         </Alert>
       ))}
 
-      <List>
-        {schedule.map((day) => (
-          <ListItem key={day.date}>
-            <Stack>
-              <Typography>{format(day.date, "EEE d MMM")}</Typography>
-              <Typography>{`Pick up: ${day.pickup}ml`}</Typography>
-              <Typography>{`Dose: ${day.dose}ml`}</Typography>
-            </Stack>
-          </ListItem>
+      <Box
+        component="ul"
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "repeat(7, 1fr)" },
+          gap: 1,
+          p: 0,
+          m: 0,
+          listStyle: "none",
+        }}
+      >
+        {schedule.map((day, index) => (
+          <ScheduleDisplayCard
+            key={day.date}
+            day={day}
+            coverage={getPickupCoverage(schedule, index)}
+          />
         ))}
-      </List>
+      </Box>
     </Stack>
   );
 };
