@@ -47,7 +47,7 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
         </Select>
       </FormControl>
 
-      <FormControl component="fieldset" error={formErrors.dayError}>
+      <FormControl component="fieldset" error={!!formErrors.availableDays}>
         <FormLabel component="legend">
           What days of the week is the service user generally available?
         </FormLabel>
@@ -66,17 +66,12 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
             />
           ))}
         </FormGroup>
-        {formErrors.dayError && (
-          <FormHelperText>
-            Select at least one day the service user is available
-          </FormHelperText>
+        {formErrors.availableDays && (
+          <FormHelperText>{formErrors.availableDays}</FormHelperText>
         )}
       </FormControl>
 
-      <FormControl
-        component="fieldset"
-        error={formErrors.prescriptionTypeError}
-      >
+      <FormControl component="fieldset" error={!!formErrors.prescriptionType}>
         <FormLabel component="legend">
           What type of prescription is it?
         </FormLabel>
@@ -93,8 +88,8 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
             />
           ))}
         </RadioGroup>
-        {formErrors.prescriptionTypeError && (
-          <FormHelperText>Select a prescription type</FormHelperText>
+        {formErrors.prescriptionType && (
+          <FormHelperText>{formErrors.prescriptionType}</FormHelperText>
         )}
       </FormControl>
 
@@ -104,11 +99,8 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
           type="number"
           value={formValues.stabilisationDose}
           onChange={formHandlers.handleUpdateStabilisationDose}
-          error={formErrors.doseError}
-          helperText={
-            formErrors.doseError &&
-            "Dosage must be a whole number between 0 and 60"
-          }
+          error={!!formErrors.stabilisationDose}
+          helperText={formErrors.stabilisationDose}
         />
       )}
 
@@ -119,33 +111,24 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
             type="number"
             value={formValues.initialDose}
             onChange={formHandlers.handleUpdateInitialDose}
-            error={formErrors.initialDoseError}
-            helperText={
-              formErrors.initialDoseError &&
-              "Initial Daily Dose (ml) must be a whole number between 0 and 60"
-            }
+            error={!!formErrors.initialDose}
+            helperText={formErrors.initialDose}
           />
           <TextField
             label="Increase/Decrease (ml)"
             type="number"
             value={formValues.doseChange}
             onChange={formHandlers.handleUpdateDoseChange}
-            error={formErrors.doseChangeError}
-            helperText={
-              formErrors.doseChangeError &&
-              "Increase/Decrease (ml) must be a whole number between 0 and 60"
-            }
+            error={!!formErrors.doseChange}
+            helperText={formErrors.doseChange}
           />
           <TextField
             label="Every (days)"
             type="number"
             value={formValues.changePeriod}
             onChange={formHandlers.handleUpdateChangePeriod}
-            error={formErrors.changePeriodError}
-            helperText={
-              formErrors.changePeriodError &&
-              "Every (days) must be a whole number of 1 or more"
-            }
+            error={!!formErrors.changePeriod}
+            helperText={formErrors.changePeriod}
           />
         </>
       )}

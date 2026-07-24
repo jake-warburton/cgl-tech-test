@@ -2,26 +2,19 @@ import { useState } from "react";
 import type { SelectChangeEvent } from "@mui/material";
 import type {
   DayOfWeek,
+  FormErrors,
+  FormValues,
   PrescriptionType,
   QuestionnaireAnswers,
 } from "./types";
-import { isValidDose } from "./isValidDose";
-import { isValidChangePeriod } from "./isValidChangePeriod";
+import { validateForm } from "./validation/validateForm";
 
 interface UseQuestionnaireFormProps {
   onSubmit: (obj: QuestionnaireAnswers) => void;
 }
 
 interface UseQuestionnaireFormReturn {
-  formValues: {
-    country: string;
-    prescriptionType: PrescriptionType | "";
-    availableDays: DayOfWeek[];
-    stabilisationDose: string;
-    initialDose: string;
-    doseChange: string;
-    changePeriod: string;
-  };
+  formValues: FormValues;
   formHandlers: {
     handleUpdateCountry: (e: SelectChangeEvent) => void;
     handleUpdatePrescriptionType: React.ChangeEventHandler<HTMLInputElement>;
@@ -31,14 +24,7 @@ interface UseQuestionnaireFormReturn {
     handleUpdateDoseChange: React.ChangeEventHandler<HTMLInputElement>;
     handleUpdateChangePeriod: React.ChangeEventHandler<HTMLInputElement>;
   };
-  formErrors: {
-    dayError: boolean;
-    prescriptionTypeError: boolean;
-    doseError: boolean;
-    initialDoseError: boolean;
-    doseChangeError: boolean;
-    changePeriodError: boolean;
-  };
+  formErrors: FormErrors;
   handleSubmit: React.SubmitEventHandler<HTMLFormElement>;
 }
 
@@ -49,28 +35,21 @@ interface UseQuestionnaireFormReturn {
 export const useQuestionnaireForm = ({
   onSubmit,
 }: UseQuestionnaireFormProps): UseQuestionnaireFormReturn => {
+  //    Form Values
   const [country, setCountry] = useState("england-and-wales");
-
   const [availableDays, setAvailableDays] = useState<DayOfWeek[]>([]);
-  const [dayError, setDayError] = useState(false);
-
   const [prescriptionType, setPrescriptionType] = useState<
     PrescriptionType | ""
   >("");
-  const [prescriptionTypeError, setPrescriptionTypeError] = useState(false);
-
   const [stabilisationDose, setStabilisationDose] = useState("");
-  const [doseError, setDoseError] = useState(false);
-
   const [initialDose, setInitialDose] = useState("");
-  const [initialDoseError, setInitialDoseError] = useState(false);
-
   const [doseChange, setDoseChange] = useState("");
-  const [doseChangeError, setDoseChangeError] = useState(false);
-
   const [changePeriod, setChangePeriod] = useState("");
-  const [changePeriodError, setChangePeriodError] = useState(false);
 
+  //    Form Errors
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+
+  //    Form Handlers
   const handleUpdateCountry = (e: SelectChangeEvent) =>
     setCountry(e.target.value);
 
@@ -106,55 +85,38 @@ export const useQuestionnaireForm = ({
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const hasDayError = !availableDays.length;
-    const hasPrescriptionTypeError = prescriptionType === "";
+    const errors = validateForm({
+      availableDays,
+      prescriptionType,
+      stabilisationDose,
+      initialDose,
+      doseChange,
+      changePeriod,
+    });
 
-    const numericStabilisationDose = Number(stabilisationDose);
+    setFormErrors(errors);
 
-    const hasDoseError =
-      prescriptionType === "Stabilisation" && !isValidDose(stabilisationDose);
-
-    setDayError(hasDayError);
-    setPrescriptionTypeError(hasPrescriptionTypeError);
-    setDoseError(hasDoseError);
-
-    if (hasDayError || hasPrescriptionTypeError || hasDoseError) return;
+    if (Object.keys(errors).length) return;
 
     if (prescriptionType === "Stabilisation") {
       return onSubmit({
         country,
         availableDays,
         prescriptionType,
-        stabilisationDose: numericStabilisationDose,
+        stabilisationDose: Number(stabilisationDose),
       });
     }
 
-    const numericInitialDose = Number(initialDose);
-    const numericDoseChange = Number(doseChange);
-    const numericChangePeriod = Number(changePeriod);
-
-    const isTitration =
-      prescriptionType === "Reducing" || prescriptionType === "Increasing";
-    const hasInitialDoseError = isTitration && !isValidDose(initialDose);
-    const hasDoseChangeError = isTitration && !isValidDose(doseChange);
-    const hasChangePeriodError =
-      isTitration && !isValidChangePeriod(changePeriod);
-
-    setInitialDoseError(hasInitialDoseError);
-    setDoseChangeError(hasDoseChangeError);
-    setChangePeriodError(hasChangePeriodError);
-
-    if (hasInitialDoseError || hasDoseChangeError || hasChangePeriodError)
-      return;
-
-    return onSubmit({
-      country,
-      availableDays,
-      prescriptionType,
-      initialDose: numericInitialDose,
-      doseChange: numericDoseChange,
-      changePeriod: numericChangePeriod,
-    });
+    if (prescriptionType !== "") {
+      return onSubmit({
+        country,
+        availableDays,
+        prescriptionType,
+        initialDose: Number(initialDose),
+        doseChange: Number(doseChange),
+        changePeriod: Number(changePeriod),
+      });
+    }
   };
 
   return {
@@ -176,14 +138,7 @@ export const useQuestionnaireForm = ({
       handleUpdateDoseChange,
       handleUpdateChangePeriod,
     },
-    formErrors: {
-      dayError,
-      prescriptionTypeError,
-      doseError,
-      initialDoseError,
-      doseChangeError,
-      changePeriodError,
-    },
+    formErrors,
     handleSubmit,
   };
 };
