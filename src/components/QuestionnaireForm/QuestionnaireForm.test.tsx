@@ -28,6 +28,19 @@ describe("QuestionnaireForm", () => {
     ]);
   });
 
+  it("explains that the country determines the bank holidays", async () => {
+    const user = userEvent.setup();
+    render(<QuestionnaireForm onSubmit={vi.fn()} />);
+
+    await user.hover(
+      screen.getByRole("button", { name: "About the country selection" }),
+    );
+
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      "The country determines which bank holidays are taken into account",
+    );
+  });
+
   it("renders seven availability toggles, Mon-Sun, none selected initially", () => {
     render(<QuestionnaireForm onSubmit={vi.fn()} />);
 
