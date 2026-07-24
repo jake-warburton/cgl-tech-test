@@ -18,10 +18,7 @@ describe("generateSchedule", () => {
     // Reducing 60ml by 5ml every 7 days from Monday 2026-08-24,
     // available Mon/Wed/Fri; the real August bank holiday on Monday the
     // 31st cascades into a five-day pick-up on Friday the 28th
-    const { schedule, warnings } = generateSchedule({
-      answers: reducingAnswers,
-      startDate: "2026-08-24",
-    });
+    const { schedule, warnings } = generateSchedule(reducingAnswers);
 
     expect(schedule).toHaveLength(14);
     expect(schedule[0]).toEqual({
@@ -48,8 +45,8 @@ describe("generateSchedule", () => {
     // The August 2026 bank holiday falls on the 3rd in Scotland, not the
     // 31st, so the same answers produce a different schedule there
     const { schedule } = generateSchedule({
-      answers: { ...reducingAnswers, country: "scotland" },
-      startDate: "2026-08-24",
+      ...reducingAnswers,
+      country: "scotland",
     });
 
     // Monday the 31st is collectable in Scotland

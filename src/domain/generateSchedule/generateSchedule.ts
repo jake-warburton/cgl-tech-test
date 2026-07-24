@@ -10,22 +10,16 @@ import type {
   ScheduleWarning,
 } from "../types";
 
-interface GenerateScheduleArgs {
-  answers: QuestionnaireAnswers;
-  startDate: string;
-}
-
-interface GenerateScheduleReturn {
+export interface ScheduleResult {
   schedule: ScheduleDay[];
   warnings: ScheduleWarning[];
 }
 
-export const generateSchedule = ({
-  answers,
-  startDate,
-}: GenerateScheduleArgs): GenerateScheduleReturn => {
+export const generateSchedule = (
+  answers: QuestionnaireAnswers,
+): ScheduleResult => {
   const schedule = distributePickups({
-    dates: buildDateRange(startDate, PRESCRIPTION_LENGTH_DAYS),
+    dates: buildDateRange(answers.startDate, PRESCRIPTION_LENGTH_DAYS),
     doses: calculateDailyDoses(answers, PRESCRIPTION_LENGTH_DAYS),
     availableDays: answers.availableDays,
     bankHolidays: getBankHolidayDates(answers.country),
