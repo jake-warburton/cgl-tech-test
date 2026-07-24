@@ -11,13 +11,8 @@ export interface FormValues {
   changePeriod: string;
 }
 
-type FormField =
-  | "availableDays"
-  | "prescriptionType"
-  | "startDate"
-  | "stabilisationDose"
-  | "initialDose"
-  | "doseChange"
-  | "changePeriod";
+//  The form's fields are exactly the values it collects; country is
+//  excluded because the select cannot hold an invalid value
+type FormField = Exclude<keyof FormValues, "country">;
 
 export type FormErrors = Partial<Record<FormField, string>>;
