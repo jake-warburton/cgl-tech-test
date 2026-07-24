@@ -8,6 +8,17 @@ interface DistributePickupsArgs {
   bankHolidays: string[];
 }
 
+/**
+ * Assigns each day's dose to a pick-up day. Doses for days the service
+ * user cannot collect (unavailable weekdays or bank holidays) are added
+ * to the previous collectable day's pick-up, and those days show a 0ml
+ * pick-up. The dose field is unchanged: it is what is consumed that day.
+ * @param dates - the schedule days as "yyyy-MM-dd" strings, in order
+ * @param doses - one dose in ml per day, aligned with dates by index
+ * @param availableDays - weekdays the service user can collect on
+ * @param bankHolidays - bank holiday dates as "yyyy-MM-dd" strings
+ * @returns one entry per day: date, dose consumed and pick-up amount
+ */
 export const distributePickups = ({
   dates,
   doses,
@@ -24,12 +35,13 @@ export const distributePickups = ({
     //  Get current date's day of week
     const currentDayOfWeek = format(dates[i], "eeee") as DayOfWeek;
 
-    const dosageToPickupToday = availableDays.includes(currentDayOfWeek)
-      ? accumulatedDosage
-      : 0;
+    //  Find if current day is a collection day
+    const isCollectableDay = availableDays.includes(currentDayOfWeek);
+
+    const dosageToPickupToday = isCollectableDay ? accumulatedDosage : 0;
 
     //  Service user picks up today. Reset accumulator back to 0 for tomorrow
-    if (dosageToPickupToday > 0) accumulatedDosage = 0;
+    if (isCollectableDay) accumulatedDosage = 0;
 
     pickupsArray.push({
       date: dates[i],
