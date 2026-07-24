@@ -15,7 +15,7 @@ import {
   TextField,
 } from "@mui/material";
 
-import bankHolidays from "../../data/bank-holidays.json";
+import bankHolidaysByCountry from "../../data/bank-holidays.json";
 import { countrySlugToLabel } from "./countrySlugToLabel";
 import { useQuestionnaireForm } from "./useQuestionnaireForm";
 import { daysOfWeek, prescriptionTypes } from "./constants";
@@ -39,7 +39,7 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
           value={formValues.country}
           onChange={formHandlers.handleUpdateCountry}
         >
-          {Object.keys(bankHolidays).map((slug) => (
+          {Object.keys(bankHolidaysByCountry).map((slug) => (
             <MenuItem key={slug} value={slug}>
               {countrySlugToLabel(slug)}
             </MenuItem>
