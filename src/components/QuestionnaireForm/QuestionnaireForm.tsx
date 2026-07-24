@@ -6,6 +6,8 @@ import {
   FormLabel,
   InputLabel,
   MenuItem,
+  Radio,
+  RadioGroup,
   Select,
 } from "@mui/material";
 
@@ -22,6 +24,8 @@ const daysOfWeek = [
   "Saturday",
   "Sunday",
 ];
+
+const prescriptionTypes = ["Reducing", "Increasing", "Stabilisation"];
 
 interface QuestionnaireFormProps {
   onSubmit: () => void;
@@ -57,6 +61,22 @@ export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
             <FormControlLabel key={day} label={day} control={<Checkbox />} />
           ))}
         </FormGroup>
+      </FormControl>
+
+      <FormControl component="fieldset">
+        <FormLabel component="legend">
+          What type of prescription is it?
+        </FormLabel>
+        <RadioGroup>
+          {prescriptionTypes.map((type) => (
+            <FormControlLabel
+              key={type}
+              label={type}
+              value={type}
+              control={<Radio />}
+            />
+          ))}
+        </RadioGroup>
       </FormControl>
     </>
   );
