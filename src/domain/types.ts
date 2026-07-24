@@ -14,6 +14,18 @@ type BaseAnswers = {
   availableDays: DayOfWeek[];
 };
 
+export interface ScheduleDay {
+  date: string;
+  dose: number;
+  pickup: number;
+}
+
+export interface ScheduleWarning {
+  type: "large-pickup";
+  date?: string;
+  message: string;
+}
+
 export type QuestionnaireAnswers =
   | (BaseAnswers & {
       prescriptionType: "Stabilisation";
