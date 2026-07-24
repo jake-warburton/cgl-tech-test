@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { getByRole, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -47,7 +47,21 @@ describe("QuestionnaireForm", () => {
     });
   });
 
-  it("renders the three prescription type options with the question wording from the story", () => {});
+  it("renders the three prescription type options with the question wording from the story", () => {
+    render(<QuestionnaireForm onSubmit={vi.fn()} />);
+
+    const group = screen.getByRole("group", {
+      name: "What type of prescription is it?",
+    });
+    const prescriptions = within(group).getAllByRole("radio");
+
+    expect(prescriptions).toHaveLength(3);
+    const labels = ["Reducing", "Increasing", "Stabilisation"];
+    prescriptions.forEach((prescription, index) => {
+      expect(prescription).toHaveAccessibleName(labels[index]);
+      expect(prescription).not.toBeChecked();
+    });
+  });
 
   it("shows only the dosage field when Stabilisation is selected", () => {});
 
