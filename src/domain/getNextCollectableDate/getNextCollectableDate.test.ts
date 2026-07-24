@@ -7,7 +7,7 @@ describe("getNextCollectableDate", () => {
     // 2026-08-03 is a Monday
     expect(
       getNextCollectableDate({
-        from: "2026-08-03",
+        fromDate: "2026-08-03",
         availableDays: ["Monday"],
         bankHolidays: [],
       }),
@@ -18,7 +18,7 @@ describe("getNextCollectableDate", () => {
     // from Saturday, the next available Monday is the 10th
     expect(
       getNextCollectableDate({
-        from: "2026-08-08",
+        fromDate: "2026-08-08",
         availableDays: ["Monday"],
         bankHolidays: [],
       }),
@@ -29,7 +29,7 @@ describe("getNextCollectableDate", () => {
     // the August bank holiday Monday rolls the answer a week onward
     expect(
       getNextCollectableDate({
-        from: "2026-08-29",
+        fromDate: "2026-08-29",
         availableDays: ["Monday"],
         bankHolidays: ["2026-08-31"],
       }),
@@ -39,7 +39,7 @@ describe("getNextCollectableDate", () => {
   it("returns null when no collectable day exists within a year", () => {
     expect(
       getNextCollectableDate({
-        from: "2026-08-03",
+        fromDate: "2026-08-03",
         availableDays: [],
         bankHolidays: [],
       }),
