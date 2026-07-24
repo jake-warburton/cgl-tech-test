@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -15,11 +14,13 @@ import {
   Stack,
   TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 
 import bankHolidaysByCountry from "../../data/bank-holidays.json";
 import { countrySlugToLabel } from "./countrySlugToLabel";
 import { useQuestionnaireForm } from "./useQuestionnaireForm";
+import { DayPill } from "./components/DayPill/DayPill";
 import { prescriptionTypes } from "./constants";
 import { daysOfWeek } from "../../domain/constants";
 import type { QuestionnaireAnswers } from "../../domain/types";
@@ -64,21 +65,19 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
       </Stack>
 
       <FormControl component="fieldset" error={!!formErrors.availableDays}>
-        <FormLabel component="legend">
+        <FormLabel component="legend" sx={{ fontWeight: 600 }}>
           What days of the week is the service user generally available?
         </FormLabel>
-        <FormGroup>
+        <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
+          Select every day the service user can attend the pharmacy.
+        </Typography>
+        <FormGroup sx={{ flexDirection: "row", flexWrap: "nowrap", mt: 1 }}>
           {daysOfWeek.map((day) => (
-            <FormControlLabel
+            <DayPill
               key={day}
-              label={day}
-              control={
-                <Checkbox
-                  value={day}
-                  checked={formValues.availableDays.includes(day)}
-                  onChange={formHandlers.handleToggleDayAvailable}
-                />
-              }
+              day={day}
+              checked={formValues.availableDays.includes(day)}
+              onChange={formHandlers.handleToggleDayAvailable}
             />
           ))}
         </FormGroup>
