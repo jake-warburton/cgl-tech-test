@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { buildDateRange } from "../buildDateRange/buildDateRange";
+import { calculateDailyDoses } from "../calculateDailyDoses/calculateDailyDoses";
 import { distributePickups } from "./distributePickups";
 
 describe("distributePickups", () => {
@@ -56,7 +58,13 @@ describe("distributePickups", () => {
   it("treats a bank holiday as a non-collection day even when the weekday is available", () => {
     // 2026-08-31 is the August bank holiday Monday; Monday is available
     const result = distributePickups({
-      dates: ["2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31", "2026-09-01"],
+      dates: [
+        "2026-08-28",
+        "2026-08-29",
+        "2026-08-30",
+        "2026-08-31",
+        "2026-09-01",
+      ],
       doses: [55, 55, 55, 55, 55],
       availableDays: ["Monday", "Tuesday", "Friday"],
       bankHolidays: ["2026-08-31"],
@@ -87,5 +95,40 @@ describe("distributePickups", () => {
       { date: "2026-08-03", dose: 60, pickup: 120 },
       { date: "2026-08-04", dose: 60, pickup: 60 },
     ]);
+  });
+
+  it("produces the full two-week reference schedule across the pipeline", () => {
+    // Reducing 60ml by 5ml every 7 days, starting Monday 2026-08-24,
+    // available Mon/Wed/Fri, with the real August bank holiday on Mon 31st
+    const dates = buildDateRange("2026-08-24", 14);
+    const doses = calculateDailyDoses(
+      {
+        country: "england-and-wales",
+        availableDays: ["Monday", "Wednesday", "Friday"],
+        prescriptionType: "Reducing",
+        initialDose: 60,
+        doseChange: 5,
+        changePeriod: 7,
+      },
+      14,
+    );
+
+    const result = distributePickups({
+      dates,
+      doses,
+      availableDays: ["Monday", "Wednesday", "Friday"],
+      bankHolidays: ["2026-08-31"],
+    });
+
+    const pickups = result.map((day) => day.pickup);
+    expect(pickups).toEqual([
+      120, 0, 120, 0, 290, 0, 0, 0, 0, 110, 0, 165, 0, 0,
+    ]);
+
+    // every millilitre prescribed is collected exactly once
+    const totalPrescribed = doses.reduce((sum, dose) => sum + dose, 0);
+    const totalCollected = pickups.reduce((sum, pickup) => sum + pickup, 0);
+    expect(totalCollected).toBe(totalPrescribed);
+    expect(totalPrescribed).toBe(805);
   });
 });
