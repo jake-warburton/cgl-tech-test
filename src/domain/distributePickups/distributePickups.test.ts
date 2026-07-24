@@ -104,6 +104,7 @@ describe("distributePickups", () => {
     const doses = calculateDailyDoses(
       {
         country: "england-and-wales",
+        startDate: "2026-08-24",
         availableDays: ["Monday", "Wednesday", "Friday"],
         prescriptionType: "Reducing",
         initialDose: 60,

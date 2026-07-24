@@ -11,6 +11,7 @@ const day = (date: string, dose: number, pickup: number) => ({
 
 const stabilisationAnswers: QuestionnaireAnswers = {
   country: "england-and-wales",
+  startDate: "2026-08-24",
   availableDays: ["Monday", "Wednesday", "Friday"],
   prescriptionType: "Stabilisation",
   stabilisationDose: 60,
@@ -18,6 +19,7 @@ const stabilisationAnswers: QuestionnaireAnswers = {
 
 const reducingAnswers: QuestionnaireAnswers = {
   country: "england-and-wales",
+  startDate: "2026-08-24",
   availableDays: ["Monday", "Wednesday", "Friday"],
   prescriptionType: "Reducing",
   initialDose: 60,
@@ -38,9 +40,9 @@ describe("deriveWarnings", () => {
       day("2026-08-09", 60, 0),
     ];
 
-    expect(
-      deriveWarnings({ schedule, answers: stabilisationAnswers }),
-    ).toEqual([]);
+    expect(deriveWarnings({ schedule, answers: stabilisationAnswers })).toEqual(
+      [],
+    );
   });
 
   it("warns when a single pickup covers more than four days", () => {
@@ -69,7 +71,16 @@ describe("deriveWarnings", () => {
     // day; the dose calculation caps it at 60ml instead
     const increasingAnswers: QuestionnaireAnswers = {
       country: "england-and-wales",
-      availableDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      startDate: "2026-08-24",
+      availableDays: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
       prescriptionType: "Increasing",
       initialDose: 55,
       doseChange: 4,

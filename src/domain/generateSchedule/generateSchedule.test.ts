@@ -5,6 +5,7 @@ import { generateSchedule } from "./generateSchedule";
 
 const reducingAnswers: QuestionnaireAnswers = {
   country: "england-and-wales",
+  startDate: "2026-08-24",
   availableDays: ["Monday", "Wednesday", "Friday"],
   prescriptionType: "Reducing",
   initialDose: 60,

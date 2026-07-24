@@ -1,3 +1,4 @@
+import { isCollectable } from "../../../domain/isCollectable/isCollectable";
 import type { FormErrors, FormValues } from "../types";
 import { isValidChangePeriod } from "./isValidChangePeriod";
 import { isValidDose } from "./isValidDose";
@@ -5,11 +6,12 @@ import { isValidDose } from "./isValidDose";
 /**
  * Validates the questionnaire values, applying only the rules
  * relevant to the selected prescription type.
- * @param values - the raw form values, excluding country
+ * @param values - the raw form values, excluding country, plus the
+ * selected country's bank holidays for the start date check
  * @returns an error message per invalid field; empty when the form is valid
  */
 export const validateForm = (
-  values: Omit<FormValues, "country">,
+  values: Omit<FormValues, "country"> & { bankHolidays: string[] },
 ): FormErrors => {
   const errors: FormErrors = {};
 
@@ -20,6 +22,20 @@ export const validateForm = (
 
   if (values.prescriptionType === "") {
     errors.prescriptionType = "Select a prescription type";
+  }
+
+  //  Only checked once availability exists: with no days selected the
+  //  availability error already covers the form, and no date can be collectable
+  if (
+    values.availableDays.length &&
+    !isCollectable({
+      date: values.startDate,
+      availableDays: values.availableDays,
+      bankHolidays: values.bankHolidays,
+    })
+  ) {
+    errors.startDate =
+      "Prescription Start Date must be a day the service user can collect on";
   }
 
   if (

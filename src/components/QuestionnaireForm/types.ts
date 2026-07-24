@@ -4,6 +4,7 @@ export interface FormValues {
   country: string;
   availableDays: DayOfWeek[];
   prescriptionType: PrescriptionType | "";
+  startDate: string;
   stabilisationDose: string;
   initialDose: string;
   doseChange: string;
@@ -13,6 +14,7 @@ export interface FormValues {
 type FormField =
   | "availableDays"
   | "prescriptionType"
+  | "startDate"
   | "stabilisationDose"
   | "initialDose"
   | "doseChange"

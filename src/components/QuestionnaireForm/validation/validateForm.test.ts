@@ -5,19 +5,23 @@ import { validateForm } from "./validateForm";
 const validStabilisationForm = {
   availableDays: ["Monday" as const],
   prescriptionType: "Stabilisation" as const,
+  startDate: "2026-08-03", // a Monday
   stabilisationDose: "30",
   initialDose: "",
   doseChange: "",
   changePeriod: "",
+  bankHolidays: [],
 };
 
 const validTitrationForm = {
   availableDays: ["Friday" as const],
   prescriptionType: "Reducing" as const,
+  startDate: "2026-08-07", // a Friday
   stabilisationDose: "",
   initialDose: "50",
   doseChange: "5",
   changePeriod: "3",
+  bankHolidays: [],
 };
 
 describe("validateForm", () => {
@@ -34,10 +38,12 @@ describe("validateForm", () => {
       validateForm({
         availableDays: [],
         prescriptionType: "",
+        startDate: "",
         stabilisationDose: "",
         initialDose: "",
         doseChange: "",
         changePeriod: "",
+        bankHolidays: [],
       }),
     ).toEqual({
       availableDays: "Select at least one day the service user is available",
@@ -85,5 +91,24 @@ describe("validateForm", () => {
     expect(
       validateForm({ ...validTitrationForm, stabilisationDose: "999" }),
     ).toEqual({});
+  });
+
+  it("returns a start date error when the date is not collectable", () => {
+    const startDateError =
+      "Prescription Start Date must be a day the service user can collect on";
+
+    // 2026-08-08 is a Saturday and only Monday is available
+    expect(
+      validateForm({ ...validStabilisationForm, startDate: "2026-08-08" }),
+    ).toEqual({ startDate: startDateError });
+
+    // a bank holiday start date is not collectable either
+    expect(
+      validateForm({
+        ...validStabilisationForm,
+        startDate: "2026-08-31",
+        bankHolidays: ["2026-08-31"],
+      }),
+    ).toEqual({ startDate: startDateError });
   });
 });

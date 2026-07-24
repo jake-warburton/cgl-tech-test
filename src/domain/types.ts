@@ -12,6 +12,7 @@ export type PrescriptionType = "Reducing" | "Increasing" | "Stabilisation";
 type BaseAnswers = {
   country: string;
   availableDays: DayOfWeek[];
+  startDate: string;
 };
 
 export interface ScheduleDay {

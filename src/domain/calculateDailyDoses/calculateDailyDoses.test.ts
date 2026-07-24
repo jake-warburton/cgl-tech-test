@@ -5,6 +5,7 @@ import { calculateDailyDoses } from "./calculateDailyDoses";
 
 const stabilisationAnswers: QuestionnaireAnswers = {
   country: "england-and-wales",
+  startDate: "2026-08-24",
   availableDays: ["Monday"],
   prescriptionType: "Stabilisation",
   stabilisationDose: 30,
@@ -12,6 +13,7 @@ const stabilisationAnswers: QuestionnaireAnswers = {
 
 const reducingAnswers: QuestionnaireAnswers = {
   country: "england-and-wales",
+  startDate: "2026-08-24",
   availableDays: ["Monday"],
   prescriptionType: "Reducing",
   initialDose: 60,
@@ -21,6 +23,7 @@ const reducingAnswers: QuestionnaireAnswers = {
 
 const increasingAnswers: QuestionnaireAnswers = {
   country: "england-and-wales",
+  startDate: "2026-08-24",
   availableDays: ["Monday"],
   prescriptionType: "Increasing",
   initialDose: 20,

@@ -93,6 +93,17 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
         )}
       </FormControl>
 
+      <TextField
+        label="Prescription Start Date"
+        type="date"
+        disabled={!formValues.availableDays.length}
+        value={formValues.startDate}
+        onChange={formHandlers.handleUpdateStartDate}
+        error={!!formErrors.startDate}
+        helperText={formErrors.startDate}
+        slotProps={{ inputLabel: { shrink: true } }}
+      />
+
       {formValues.prescriptionType === "Stabilisation" && (
         <TextField
           label="What is the dosage? (0-60ml)"

@@ -7,6 +7,9 @@ import type {
   PrescriptionType,
   QuestionnaireAnswers,
 } from "../../domain/types";
+import { getNextCollectableDate } from "../../domain/getNextCollectableDate/getNextCollectableDate";
+import { format } from "date-fns";
+import { getBankHolidayDates } from "../../domain/getBankHolidayDates/getBankHolidayDates";
 
 interface UseQuestionnaireFormProps {
   onSubmit: (obj: QuestionnaireAnswers) => void;
@@ -17,6 +20,7 @@ interface UseQuestionnaireFormReturn {
   formHandlers: {
     handleUpdateCountry: (e: SelectChangeEvent) => void;
     handleUpdatePrescriptionType: React.ChangeEventHandler<HTMLInputElement>;
+    handleUpdateStartDate: React.ChangeEventHandler<HTMLInputElement>;
     handleToggleDayAvailable: React.ChangeEventHandler<HTMLInputElement>;
     handleUpdateStabilisationDose: React.ChangeEventHandler<HTMLInputElement>;
     handleUpdateInitialDose: React.ChangeEventHandler<HTMLInputElement>;
@@ -40,10 +44,23 @@ export const useQuestionnaireForm = ({
   const [prescriptionType, setPrescriptionType] = useState<
     PrescriptionType | ""
   >("");
+  const [startDate, setStartDate] = useState("");
   const [stabilisationDose, setStabilisationDose] = useState("");
   const [initialDose, setInitialDose] = useState("");
   const [doseChange, setDoseChange] = useState("");
   const [changePeriod, setChangePeriod] = useState("");
+
+  const bankHolidays = getBankHolidayDates(country);
+
+  const defaultStartDate = availableDays.length
+    ? getNextCollectableDate({
+        fromDate: format(new Date(), "yyyy-MM-dd"),
+        availableDays,
+        bankHolidays,
+      })
+    : null;
+
+  const resolvedStartDate = startDate || defaultStartDate || "";
 
   //    Form Errors
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -55,6 +72,9 @@ export const useQuestionnaireForm = ({
   const handleUpdatePrescriptionType = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => setPrescriptionType(e.target.value as PrescriptionType);
+
+  const handleUpdateStartDate = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setStartDate(e.target.value);
 
   const handleToggleDayAvailable = (e: React.ChangeEvent<HTMLInputElement>) => {
     const day = e.target.value as DayOfWeek;
@@ -87,10 +107,12 @@ export const useQuestionnaireForm = ({
     const errors = validateForm({
       availableDays,
       prescriptionType,
+      startDate: resolvedStartDate,
       stabilisationDose,
       initialDose,
       doseChange,
       changePeriod,
+      bankHolidays,
     });
 
     setFormErrors(errors);
@@ -102,6 +124,7 @@ export const useQuestionnaireForm = ({
         country,
         availableDays,
         prescriptionType,
+        startDate: resolvedStartDate,
         stabilisationDose: Number(stabilisationDose),
       });
     }
@@ -111,6 +134,7 @@ export const useQuestionnaireForm = ({
         country,
         availableDays,
         prescriptionType,
+        startDate: resolvedStartDate,
         initialDose: Number(initialDose),
         doseChange: Number(doseChange),
         changePeriod: Number(changePeriod),
@@ -123,6 +147,7 @@ export const useQuestionnaireForm = ({
       country,
       availableDays,
       prescriptionType,
+      startDate: resolvedStartDate,
       stabilisationDose,
       initialDose,
       doseChange,
@@ -131,6 +156,7 @@ export const useQuestionnaireForm = ({
     formHandlers: {
       handleUpdateCountry,
       handleUpdatePrescriptionType,
+      handleUpdateStartDate,
       handleToggleDayAvailable,
       handleUpdateStabilisationDose,
       handleUpdateInitialDose,

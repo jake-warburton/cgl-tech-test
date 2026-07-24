@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { format } from "date-fns";
 import { describe, expect, it, vi } from "vitest";
 
 import { QuestionnaireForm } from "./QuestionnaireForm";
@@ -220,8 +219,14 @@ describe("QuestionnaireForm", () => {
       await user.click(screen.getByRole("radio", { name: "Reducing" }));
 
       const fieldValues = [
-        ["Initial Daily Dose (ml)", field === "Initial Daily Dose (ml)" ? value : "30"],
-        ["Increase/Decrease (ml)", field === "Increase/Decrease (ml)" ? value : "5"],
+        [
+          "Initial Daily Dose (ml)",
+          field === "Initial Daily Dose (ml)" ? value : "30",
+        ],
+        [
+          "Increase/Decrease (ml)",
+          field === "Increase/Decrease (ml)" ? value : "5",
+        ],
         ["Every (days)", "3"],
       ];
       for (const [name, text] of fieldValues) {
@@ -271,11 +276,58 @@ describe("QuestionnaireForm", () => {
     },
   );
 
-  it("renders the prescription start date input, defaulting to today", () => {
+  it("disables the start date input until an availability day is selected", async () => {
+    const user = userEvent.setup();
     render(<QuestionnaireForm onSubmit={vi.fn()} />);
 
     const startDate = screen.getByLabelText("Prescription Start Date");
-    expect(startDate).toHaveValue(format(new Date(), "yyyy-MM-dd"));
+    expect(startDate).toBeDisabled();
+
+    await user.click(screen.getByRole("checkbox", { name: "Monday" }));
+    expect(startDate).toBeEnabled();
+  });
+
+  it("defaults the start date to the next collectable day for the availability", async () => {
+    // freeze today at Wednesday 2026-08-05: with only Monday available,
+    // the next collectable day is Monday the 10th
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-08-05T12:00:00"));
+
+    const user = userEvent.setup();
+    render(<QuestionnaireForm onSubmit={vi.fn()} />);
+
+    await user.click(screen.getByRole("checkbox", { name: "Monday" }));
+
+    expect(screen.getByLabelText("Prescription Start Date")).toHaveValue(
+      "2026-08-10",
+    );
+
+    vi.useRealTimers();
+  });
+
+  it("shows a validation error and does not submit when the start date is not collectable", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("checkbox", { name: "Monday" }));
+    await user.click(screen.getByRole("radio", { name: "Stabilisation" }));
+    await user.type(
+      screen.getByRole("spinbutton", { name: "What is the dosage? (0-60ml)" }),
+      "30",
+    );
+    // 2026-08-08 is a Saturday and only Monday is available
+    fireEvent.change(screen.getByLabelText("Prescription Start Date"), {
+      target: { value: "2026-08-08" },
+    });
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    expect(
+      screen.getByText(
+        "Prescription Start Date must be a day the service user can collect on",
+      ),
+    ).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it("calls onSubmit once with the answers when a stabilisation form is valid", async () => {
@@ -300,8 +352,8 @@ describe("QuestionnaireForm", () => {
       country: "england-and-wales",
       availableDays: ["Monday", "Thursday"],
       prescriptionType: "Stabilisation",
-      stabilisationDose: 30,
       startDate: "2026-08-24",
+      stabilisationDose: 30,
     });
   });
 
@@ -334,10 +386,10 @@ describe("QuestionnaireForm", () => {
       country: "england-and-wales",
       availableDays: ["Friday"],
       prescriptionType: "Reducing",
+      startDate: "2026-08-28",
       initialDose: 50,
       doseChange: 5,
       changePeriod: 3,
-      startDate: "2026-08-28",
     });
   });
 });
