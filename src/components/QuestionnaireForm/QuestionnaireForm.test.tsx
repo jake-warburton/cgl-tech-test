@@ -158,5 +158,58 @@ describe("QuestionnaireForm", () => {
     },
   );
 
-  it("calls onSubmit once with the answers when the form is valid", () => {});
+  it("calls onSubmit once with the answers when a stabilisation form is valid", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("checkbox", { name: "Monday" }));
+    await user.click(screen.getByRole("checkbox", { name: "Thursday" }));
+    await user.click(screen.getByRole("radio", { name: "Stabilisation" }));
+    await user.type(
+      screen.getByRole("spinbutton", { name: "What is the dosage? (0-60ml)" }),
+      "30",
+    );
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      country: "england-and-wales",
+      availableDays: ["Monday", "Thursday"],
+      prescriptionType: "Stabilisation",
+      stabilisationDose: 30,
+    });
+  });
+
+  it("calls onSubmit once with the answers when a titration form is valid", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("checkbox", { name: "Friday" }));
+    await user.click(screen.getByRole("radio", { name: "Reducing" }));
+    await user.type(
+      screen.getByRole("spinbutton", { name: "Initial Daily Dose (ml)" }),
+      "50",
+    );
+    await user.type(
+      screen.getByRole("spinbutton", { name: "Increase/Decrease (ml)" }),
+      "5",
+    );
+    await user.type(
+      screen.getByRole("spinbutton", { name: "Every (days)" }),
+      "3",
+    );
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      country: "england-and-wales",
+      availableDays: ["Friday"],
+      prescriptionType: "Reducing",
+      initialDose: 50,
+      doseChange: 5,
+      changePeriod: 3,
+    });
+  });
 });
