@@ -5,6 +5,8 @@ import type {
   PrescriptionType,
   QuestionnaireAnswers,
 } from "./types";
+import { isValidDose } from "./isValidDose";
+import { isValidChangePeriod } from "./isValidChangePeriod";
 
 interface UseQuestionnaireFormProps {
   onSubmit: (obj: QuestionnaireAnswers) => void;
@@ -33,6 +35,9 @@ interface UseQuestionnaireFormReturn {
     dayError: boolean;
     prescriptionTypeError: boolean;
     doseError: boolean;
+    initialDoseError: boolean;
+    doseChangeError: boolean;
+    changePeriodError: boolean;
   };
   handleSubmit: React.SubmitEventHandler<HTMLFormElement>;
 }
@@ -58,8 +63,13 @@ export const useQuestionnaireForm = ({
   const [doseError, setDoseError] = useState(false);
 
   const [initialDose, setInitialDose] = useState("");
+  const [initialDoseError, setInitialDoseError] = useState(false);
+
   const [doseChange, setDoseChange] = useState("");
+  const [doseChangeError, setDoseChangeError] = useState(false);
+
   const [changePeriod, setChangePeriod] = useState("");
+  const [changePeriodError, setChangePeriodError] = useState(false);
 
   const handleUpdateCountry = (e: SelectChangeEvent) =>
     setCountry(e.target.value);
@@ -102,20 +112,13 @@ export const useQuestionnaireForm = ({
     const numericStabilisationDose = Number(stabilisationDose);
 
     const hasDoseError =
-      prescriptionType === "Stabilisation" &&
-      (!Number.isInteger(numericStabilisationDose) ||
-        numericStabilisationDose > 60 ||
-        numericStabilisationDose < 0);
+      prescriptionType === "Stabilisation" && !isValidDose(stabilisationDose);
 
     setDayError(hasDayError);
     setPrescriptionTypeError(hasPrescriptionTypeError);
     setDoseError(hasDoseError);
 
     if (hasDayError || hasPrescriptionTypeError || hasDoseError) return;
-
-    const numericInitialDose = Number(initialDose);
-    const numericDoseChange = Number(doseChange);
-    const numericChangePeriod = Number(changePeriod);
 
     if (prescriptionType === "Stabilisation") {
       return onSubmit({
@@ -126,16 +129,32 @@ export const useQuestionnaireForm = ({
       });
     }
 
-    if (prescriptionType !== "") {
-      return onSubmit({
-        country,
-        availableDays,
-        prescriptionType,
-        initialDose: numericInitialDose,
-        doseChange: numericDoseChange,
-        changePeriod: numericChangePeriod,
-      });
-    }
+    const numericInitialDose = Number(initialDose);
+    const numericDoseChange = Number(doseChange);
+    const numericChangePeriod = Number(changePeriod);
+
+    const isTitration =
+      prescriptionType === "Reducing" || prescriptionType === "Increasing";
+    const hasInitialDoseError = isTitration && !isValidDose(initialDose);
+    const hasDoseChangeError = isTitration && !isValidDose(doseChange);
+    const hasChangePeriodError =
+      isTitration && !isValidChangePeriod(changePeriod);
+
+    setInitialDoseError(hasInitialDoseError);
+    setDoseChangeError(hasDoseChangeError);
+    setChangePeriodError(hasChangePeriodError);
+
+    if (hasInitialDoseError || hasDoseChangeError || hasChangePeriodError)
+      return;
+
+    return onSubmit({
+      country,
+      availableDays,
+      prescriptionType,
+      initialDose: numericInitialDose,
+      doseChange: numericDoseChange,
+      changePeriod: numericChangePeriod,
+    });
   };
 
   return {
@@ -161,6 +180,9 @@ export const useQuestionnaireForm = ({
       dayError,
       prescriptionTypeError,
       doseError,
+      initialDoseError,
+      doseChangeError,
+      changePeriodError,
     },
     handleSubmit,
   };

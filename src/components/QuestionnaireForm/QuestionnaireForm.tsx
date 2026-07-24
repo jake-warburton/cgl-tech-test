@@ -119,18 +119,33 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
             type="number"
             value={formValues.initialDose}
             onChange={formHandlers.handleUpdateInitialDose}
+            error={formErrors.initialDoseError}
+            helperText={
+              formErrors.initialDoseError &&
+              "Initial Daily Dose (ml) must be a whole number between 0 and 60"
+            }
           />
           <TextField
             label="Increase/Decrease (ml)"
             type="number"
             value={formValues.doseChange}
             onChange={formHandlers.handleUpdateDoseChange}
+            error={formErrors.doseChangeError}
+            helperText={
+              formErrors.doseChangeError &&
+              "Increase/Decrease (ml) must be a whole number between 0 and 60"
+            }
           />
           <TextField
             label="Every (days)"
             type="number"
             value={formValues.changePeriod}
             onChange={formHandlers.handleUpdateChangePeriod}
+            error={formErrors.changePeriodError}
+            helperText={
+              formErrors.changePeriodError &&
+              "Every (days) must be a whole number of 1 or more"
+            }
           />
         </>
       )}
