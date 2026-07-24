@@ -5,9 +5,9 @@ function App() {
   return (
     <>
       <CssBaseline />
-      <Container>
-        <Typography variant="h1" component="h1">
-          Hello World.
+      <Container maxWidth="sm" sx={{ py: 4 }}>
+        <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
+          Prescription Pick-up Calculator
         </Typography>
 
         <QuestionnaireForm onSubmit={() => {}} />
