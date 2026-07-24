@@ -67,8 +67,11 @@ This test needs no database, but in a real system issued schedules would be pers
 
 ## Open Questions
 
-I will be asking these questions to stakeholders and possibly more if I uncover any in early implementation
+I raised these questions with the team by email before starting implementation, stating the assumption I intended to proceed with in each case. All three were answered on 24 July: each interpretation was approved, with a general steer that sensible product decisions are welcomed and will be discussed in the review conversation.
 
 1. Collection frequency: The story mentions 2–3 pharmacy visits a week. I plan to treat this as descriptive rather than a validation rule: I'll allow any availability pattern and show a warning when a selection produces fewer collections or larger amounts than typical. My reasoning: a maximum of 3 would block daily collection, which is the safest pattern for a new prescription, and a minimum of 2 can't be truly guaranteed through day selection anyway, since a bank holiday can reduce a two-day week to one. Should I instead enforce it as a rule, requiring 2 to 3 selected days per week? (Even then, a bank holiday week could still yield a single collection, so I'd treat that case as a warning rather than a rejection.)
+   - Answer: interpretation approved; either approach is acceptable if well justified.
 2. Start date: I plan to add a start-date input, defaulting to the next collectable date. Prescriptions are usually written before they begin, and without real dates the bank-holiday handling can't be demonstrated or tested. I also plan to only offer start dates on which a collection can actually happen, since a prescription starting on a non-collection day would leave the service user without medication from day one. Any concerns?
+   - Answer: no concerns.
 3. Schedule display: Where several days are collected in one visit, I plan to show the collection total alongside a per-day breakdown. My concern is that a bare '120ml' against a Monday could be misread as a single day's dose, which feels unsafe in a controlled-drug context. Does that presentation work for you?
+   - Answer: presentation approved.
