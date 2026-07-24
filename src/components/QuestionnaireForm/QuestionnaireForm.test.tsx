@@ -1,5 +1,6 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { format } from "date-fns";
 import { describe, expect, it, vi } from "vitest";
 
 import { QuestionnaireForm } from "./QuestionnaireForm";
@@ -270,6 +271,13 @@ describe("QuestionnaireForm", () => {
     },
   );
 
+  it("renders the prescription start date input, defaulting to today", () => {
+    render(<QuestionnaireForm onSubmit={vi.fn()} />);
+
+    const startDate = screen.getByLabelText("Prescription Start Date");
+    expect(startDate).toHaveValue(format(new Date(), "yyyy-MM-dd"));
+  });
+
   it("calls onSubmit once with the answers when a stabilisation form is valid", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
@@ -282,6 +290,9 @@ describe("QuestionnaireForm", () => {
       screen.getByRole("spinbutton", { name: "What is the dosage? (0-60ml)" }),
       "30",
     );
+    fireEvent.change(screen.getByLabelText("Prescription Start Date"), {
+      target: { value: "2026-08-24" },
+    });
     await user.click(screen.getByRole("button", { name: "Submit" }));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -290,6 +301,7 @@ describe("QuestionnaireForm", () => {
       availableDays: ["Monday", "Thursday"],
       prescriptionType: "Stabilisation",
       stabilisationDose: 30,
+      startDate: "2026-08-24",
     });
   });
 
@@ -312,6 +324,9 @@ describe("QuestionnaireForm", () => {
       screen.getByRole("spinbutton", { name: "Every (days)" }),
       "3",
     );
+    fireEvent.change(screen.getByLabelText("Prescription Start Date"), {
+      target: { value: "2026-08-28" },
+    });
     await user.click(screen.getByRole("button", { name: "Submit" }));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
@@ -322,6 +337,7 @@ describe("QuestionnaireForm", () => {
       initialDose: 50,
       doseChange: 5,
       changePeriod: 3,
+      startDate: "2026-08-28",
     });
   });
 });
