@@ -150,6 +150,20 @@ describe("QuestionnaireForm", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it("shows all validation errors together when an empty form is submitted", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    expect(
+      screen.getByText("Select at least one day the service user is available"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Select a prescription type")).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it.each(["61", "-1", "0.5"])(
     "shows a range error and does not submit when the dosage is %s",
     async (dose) => {
