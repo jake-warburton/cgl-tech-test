@@ -1,5 +1,6 @@
-import { format } from "date-fns";
-import type { DayOfWeek } from "../types";
+import type { DayOfWeek, ScheduleDay } from "../types";
+import { isCollectable } from "../isCollectable/isCollectable";
+import { getNextCollectableDate } from "../getNextCollectableDate/getNextCollectableDate";
 
 interface DistributePickupsArgs {
   dates: string[];
@@ -25,24 +26,24 @@ export const distributePickups = ({
   availableDays,
   bankHolidays,
 }: DistributePickupsArgs) => {
-  const collectableDateFlags = dates.map(
-    (date) =>
-      availableDays.includes(format(date, "eeee") as DayOfWeek) &&
-      !bankHolidays.includes(date),
-  );
-
-  const pickupsArray = [];
+  const pickupsArray: ScheduleDay[] = [];
 
   let accumulatedDosage = 0;
 
   for (let i = dates.length - 1; i > -1; i -= 1) {
+    const isCollectableToday = isCollectable({
+      date: dates[i],
+      availableDays,
+      bankHolidays,
+    });
+
     //  Add today's dose to the pickup amount
     accumulatedDosage += doses[i];
 
-    const dosageToPickupToday = collectableDateFlags[i] ? accumulatedDosage : 0;
+    const dosageToPickupToday = isCollectableToday ? accumulatedDosage : 0;
 
     //  Service user picks up today. Reset accumulator back to 0 for tomorrow
-    if (collectableDateFlags[i]) accumulatedDosage = 0;
+    if (isCollectableToday) accumulatedDosage = 0;
 
     pickupsArray.push({
       date: dates[i],
@@ -59,8 +60,17 @@ export const distributePickups = ({
     //  There are some doses near the start without a collection day,
     //  This shouldn't happen in practice because we don't
     //  allow them to start the prescription on a non-collection day in the UI
-    //  Find first index of a collectable date, then override that index in schedule with the leftover dosage
-    const firstCollectableIndex = collectableDateFlags.indexOf(true);
+
+    const firstCollectableDay = getNextCollectableDate({
+      fromDate: schedule[0].date,
+      availableDays,
+      bankHolidays,
+    });
+
+    const firstCollectableIndex = schedule.findIndex(
+      (day) => day.date === firstCollectableDay,
+    );
+
     if (firstCollectableIndex !== -1)
       schedule[firstCollectableIndex].pickup += accumulatedDosage;
   }
