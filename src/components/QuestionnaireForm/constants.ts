@@ -1,14 +1,4 @@
-import type { DayOfWeek, PrescriptionType } from "../../domain/types";
-
-export const daysOfWeek: DayOfWeek[] = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+import type { PrescriptionType } from "../../domain/types";
 
 export const prescriptionTypes: PrescriptionType[] = [
   "Reducing",

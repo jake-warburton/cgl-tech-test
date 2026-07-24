@@ -18,7 +18,8 @@ import {
 import bankHolidaysByCountry from "../../data/bank-holidays.json";
 import { countrySlugToLabel } from "./countrySlugToLabel";
 import { useQuestionnaireForm } from "./useQuestionnaireForm";
-import { daysOfWeek, prescriptionTypes } from "./constants";
+import { prescriptionTypes } from "./constants";
+import { daysOfWeek } from "../../domain/constants";
 import type { QuestionnaireAnswers } from "../../domain/types";
 
 interface QuestionnaireFormProps {
