@@ -9,6 +9,7 @@ import {
   Radio,
   RadioGroup,
   Select,
+  Stack,
 } from "@mui/material";
 
 import bankHolidays from "../../data/bank-holidays.json";
@@ -35,7 +36,7 @@ export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
   const [country, setCountry] = useState("england-and-wales");
 
   return (
-    <>
+    <Stack spacing={3}>
       <FormControl>
         <InputLabel id="country-label">Country</InputLabel>
         <Select
@@ -78,6 +79,6 @@ export const QuestionnaireForm = ({}: QuestionnaireFormProps) => {
           ))}
         </RadioGroup>
       </FormControl>
-    </>
+    </Stack>
   );
 };
