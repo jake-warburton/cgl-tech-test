@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Box, Container, CssBaseline, Stack, Typography } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Container,
+  CssBaseline,
+  Stack,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 
 import { AnswersSummary } from "./components/AnswersSummary/AnswersSummary";
 import { QuestionnaireForm } from "./components/QuestionnaireForm/QuestionnaireForm";
@@ -22,10 +30,15 @@ function App() {
   return (
     <>
       <CssBaseline />
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="h1">
+            Prescription Pick-up Calculator
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
-          Prescription Pick-up Calculator
-        </Typography>
 
         {/* The questionnaire stays mounted while the schedule is shown so
             its answers survive for the Edit answers button */}
