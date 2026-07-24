@@ -63,7 +63,32 @@ describe("QuestionnaireForm", () => {
     });
   });
 
-  it("shows only the dosage field when Stabilisation is selected", () => {});
+  it("shows only the dosage field when Stabilisation is selected", async () => {
+    const user = userEvent.setup();
+    render(<QuestionnaireForm onSubmit={vi.fn()} />);
+
+    const dosageName = "What is the dosage? (0-60ml)";
+    expect(
+      screen.queryByRole("spinbutton", { name: dosageName }),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("radio", { name: "Stabilisation" }));
+
+    expect(
+      screen.getByRole("spinbutton", { name: dosageName }),
+    ).toBeInTheDocument();
+
+    const titrationFields = [
+      "Initial Daily Dose",
+      "Increase/Decrease",
+      "Every",
+    ];
+    titrationFields.forEach((name) => {
+      expect(
+        screen.queryByRole("spinbutton", { name }),
+      ).not.toBeInTheDocument();
+    });
+  });
 
   it("shows only the three titration fields when Reducing or Increasing is selected", () => {});
 
