@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControl,
   FormControlLabel,
@@ -29,6 +30,18 @@ import InfoOutlined from "@mui/icons-material/InfoOutlined";
 interface QuestionnaireFormProps {
   onSubmit: (obj: QuestionnaireAnswers) => void;
 }
+
+//  Grey inset card grouping the dose questions for the selected type
+const doseCardStyles = {
+  bgcolor: "#f4f3f6",
+  borderRadius: 1,
+  p: 2,
+};
+
+//  Inputs sit on the grey card, so give them a solid white fill
+const fieldOnCardStyles = {
+  "& .MuiOutlinedInput-root": { bgcolor: "background.paper" },
+};
 
 export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
   const { handleSubmit, formValues, formHandlers, formErrors } =
@@ -108,6 +121,61 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
         )}
       </FormControl>
 
+      {formValues.prescriptionType === "Stabilisation" && (
+        <Box sx={doseCardStyles}>
+          <Typography component="h2" sx={{ fontWeight: 600, mb: 2 }}>
+            {formValues.prescriptionType}
+          </Typography>
+          <TextField
+            label="What is the dosage? (0-60ml)"
+            type="number"
+            fullWidth
+            sx={fieldOnCardStyles}
+            value={formValues.stabilisationDose}
+            onChange={formHandlers.handleUpdateStabilisationDose}
+            error={!!formErrors.stabilisationDose}
+            helperText={formErrors.stabilisationDose}
+          />
+        </Box>
+      )}
+
+      {["Reducing", "Increasing"].includes(formValues.prescriptionType) && (
+        <Box sx={doseCardStyles}>
+          <Typography component="h2" sx={{ fontWeight: 600, mb: 2 }}>
+            {formValues.prescriptionType}
+          </Typography>
+          <Stack spacing={3}>
+            <TextField
+              label="Initial Daily Dose (ml)"
+              type="number"
+              sx={fieldOnCardStyles}
+              value={formValues.initialDose}
+              onChange={formHandlers.handleUpdateInitialDose}
+              error={!!formErrors.initialDose}
+              helperText={formErrors.initialDose}
+            />
+            <TextField
+              label={`${formValues.prescriptionType === "Increasing" ? "Increase" : "Decrease"} (ml)`}
+              type="number"
+              sx={fieldOnCardStyles}
+              value={formValues.doseChange}
+              onChange={formHandlers.handleUpdateDoseChange}
+              error={!!formErrors.doseChange}
+              helperText={formErrors.doseChange}
+            />
+            <TextField
+              label="Every (days)"
+              type="number"
+              sx={fieldOnCardStyles}
+              value={formValues.changePeriod}
+              onChange={formHandlers.handleUpdateChangePeriod}
+              error={!!formErrors.changePeriod}
+              helperText={formErrors.changePeriod}
+            />
+          </Stack>
+        </Box>
+      )}
+
       <TextField
         label="Prescription Start Date"
         type="date"
@@ -118,46 +186,6 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
         helperText={formErrors.startDate}
         slotProps={{ inputLabel: { shrink: true } }}
       />
-
-      {formValues.prescriptionType === "Stabilisation" && (
-        <TextField
-          label="What is the dosage? (0-60ml)"
-          type="number"
-          value={formValues.stabilisationDose}
-          onChange={formHandlers.handleUpdateStabilisationDose}
-          error={!!formErrors.stabilisationDose}
-          helperText={formErrors.stabilisationDose}
-        />
-      )}
-
-      {["Reducing", "Increasing"].includes(formValues.prescriptionType) && (
-        <>
-          <TextField
-            label="Initial Daily Dose (ml)"
-            type="number"
-            value={formValues.initialDose}
-            onChange={formHandlers.handleUpdateInitialDose}
-            error={!!formErrors.initialDose}
-            helperText={formErrors.initialDose}
-          />
-          <TextField
-            label={`${formValues.prescriptionType === "Increasing" ? "Increase" : "Decrease"} (ml)`}
-            type="number"
-            value={formValues.doseChange}
-            onChange={formHandlers.handleUpdateDoseChange}
-            error={!!formErrors.doseChange}
-            helperText={formErrors.doseChange}
-          />
-          <TextField
-            label="Every (days)"
-            type="number"
-            value={formValues.changePeriod}
-            onChange={formHandlers.handleUpdateChangePeriod}
-            error={!!formErrors.changePeriod}
-            helperText={formErrors.changePeriod}
-          />
-        </>
-      )}
 
       <Button type="submit" variant="contained">
         Submit

@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   AppBar,
   Box,
+  Card,
   Container,
   CssBaseline,
   Stack,
@@ -43,7 +44,9 @@ function App() {
         {/* The questionnaire stays mounted while the schedule is shown so
             its answers survive for the Edit answers button */}
         <Box sx={{ display: submission ? "none" : "block" }}>
-          <QuestionnaireForm onSubmit={handleSubmit} />
+          <Card sx={{ p: 3, maxWidth: "sm", mx: "auto" }}>
+            <QuestionnaireForm onSubmit={handleSubmit} />
+          </Card>
         </Box>
 
         {submission && (
