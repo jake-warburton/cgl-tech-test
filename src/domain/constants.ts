@@ -1,0 +1,1 @@
+export const PRESCRIPTION_LENGTH_DAYS = 14;

@@ -12,8 +12,8 @@ import type { QuestionnaireAnswers } from "../types";
 export const calculateDailyDoses = (
   answers: QuestionnaireAnswers,
   duration: number,
-) => {
-  return Array.from({ length: duration }, (_, index) => {
+) =>
+  Array.from({ length: duration }, (_, index) => {
     if (answers.prescriptionType === "Stabilisation")
       return answers.stabilisationDose;
 
@@ -31,4 +31,3 @@ export const calculateDailyDoses = (
     //  A reducing prescription that reaches 0ml has completed its taper
     return Math.max(answers.initialDose - answers.doseChange * stepsApplied, 0);
   });
-};

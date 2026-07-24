@@ -21,7 +21,7 @@ export interface ScheduleDay {
 }
 
 export interface ScheduleWarning {
-  type: "large-pickup";
+  type: "large-pickup" | "dose-capped";
   date?: string;
   message: string;
 }
