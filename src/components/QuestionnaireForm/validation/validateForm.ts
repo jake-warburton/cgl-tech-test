@@ -55,8 +55,7 @@ export const validateForm = (
     }
 
     if (!isValidDose(values.doseChange)) {
-      errors.doseChange =
-        "Increase/Decrease (ml) must be a whole number between 0 and 60";
+      errors.doseChange = `${values.prescriptionType === "Increasing" ? "Increase" : "Decrease"} (ml) must be a whole number between 0 and 60`;
     }
 
     if (!isValidChangePeriod(values.changePeriod)) {

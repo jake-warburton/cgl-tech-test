@@ -141,7 +141,7 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
             helperText={formErrors.initialDose}
           />
           <TextField
-            label="Increase/Decrease (ml)"
+            label={`${formValues.prescriptionType === "Increasing" ? "Increase" : "Decrease"} (ml)`}
             type="number"
             value={formValues.doseChange}
             onChange={formHandlers.handleUpdateDoseChange}
