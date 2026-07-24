@@ -4,7 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { QuestionnaireForm } from "./QuestionnaireForm";
 
-const titrationFields = ["Initial Daily Dose", "Increase/Decrease", "Every"];
+const titrationFields = [
+  "Initial Daily Dose (ml)",
+  "Increase/Decrease (ml)",
+  "Every (days)",
+];
 
 describe("QuestionnaireForm", () => {
   it("renders the country select with three options, defaulting to England and Wales", async () => {

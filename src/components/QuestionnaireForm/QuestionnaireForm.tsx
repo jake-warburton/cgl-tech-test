@@ -128,9 +128,9 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
 
       {["Reducing", "Increasing"].includes(prescriptionType) && (
         <>
-          <TextField label="Initial Daily Dose" type="number" />
-          <TextField label="Increase/Decrease" type="number" />
-          <TextField label="Every" type="number" />
+          <TextField label="Initial Daily Dose (ml)" type="number" />
+          <TextField label="Increase/Decrease (ml)" type="number" />
+          <TextField label="Every (days)" type="number" />
         </>
       )}
 
