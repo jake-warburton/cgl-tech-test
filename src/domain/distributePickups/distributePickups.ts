@@ -25,6 +25,12 @@ export const distributePickups = ({
   availableDays,
   bankHolidays,
 }: DistributePickupsArgs) => {
+  const collectableDateFlags = dates.map(
+    (date) =>
+      availableDays.includes(format(date, "eeee") as DayOfWeek) &&
+      !bankHolidays.includes(date),
+  );
+
   const pickupsArray = [];
 
   let accumulatedDosage = 0;
@@ -33,18 +39,10 @@ export const distributePickups = ({
     //  Add today's dose to the pickup amount
     accumulatedDosage += doses[i];
 
-    //  Get current date's day of week
-    const currentDayOfWeek = format(dates[i], "eeee") as DayOfWeek;
-
-    //  Find if current day is a collection day and NOT a bank holiday
-    const isCollectableDay =
-      availableDays.includes(currentDayOfWeek) &&
-      !bankHolidays.includes(dates[i]);
-
-    const dosageToPickupToday = isCollectableDay ? accumulatedDosage : 0;
+    const dosageToPickupToday = collectableDateFlags[i] ? accumulatedDosage : 0;
 
     //  Service user picks up today. Reset accumulator back to 0 for tomorrow
-    if (isCollectableDay) accumulatedDosage = 0;
+    if (collectableDateFlags[i]) accumulatedDosage = 0;
 
     pickupsArray.push({
       date: dates[i],
@@ -53,26 +51,18 @@ export const distributePickups = ({
     });
   }
 
+  //    Reverse the array since we worked backwards through it to make accumulation easier
+  //    If the next block is hit, we want that to see the first pickup day
   const schedule = pickupsArray.reverse();
 
   if (accumulatedDosage > 0) {
     //  There are some doses near the start without a collection day,
     //  This shouldn't happen in practice because we don't
     //  allow them to start the prescription on a non-collection day in the UI
-    for (let i = 0; i < schedule.length; i += 1) {
-      //  Get current date's day of week
-      const currentDayOfWeek = format(dates[i], "eeee") as DayOfWeek;
-
-      //  Find if current day is a collection day and NOT a bank holiday
-      const isCollectableDay =
-        availableDays.includes(currentDayOfWeek) &&
-        !bankHolidays.includes(dates[i]);
-
-      if (isCollectableDay) {
-        schedule[i].pickup += accumulatedDosage;
-        break;
-      }
-    }
+    //  Find first index of a collectable date, then override that index in schedule with the leftover dosage
+    const firstCollectableIndex = collectableDateFlags.indexOf(true);
+    if (firstCollectableIndex !== -1)
+      schedule[firstCollectableIndex].pickup += accumulatedDosage;
   }
 
   return schedule;
