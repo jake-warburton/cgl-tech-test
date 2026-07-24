@@ -96,27 +96,26 @@ export const useQuestionnaireForm = ({
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!availableDays.length) return setDayError(true);
-
-    if (prescriptionType === "") return setPrescriptionTypeError(true);
+    const hasDayError = !availableDays.length;
+    const hasPrescriptionTypeError = prescriptionType === "";
 
     const numericStabilisationDose = Number(stabilisationDose);
 
-    if (
+    const hasDoseError =
       prescriptionType === "Stabilisation" &&
       (!Number.isInteger(numericStabilisationDose) ||
         numericStabilisationDose > 60 ||
-        numericStabilisationDose < 0)
-    )
-      return setDoseError(true);
+        numericStabilisationDose < 0);
+
+    setDayError(hasDayError);
+    setPrescriptionTypeError(hasPrescriptionTypeError);
+    setDoseError(hasDoseError);
+
+    if (hasDayError || hasPrescriptionTypeError || hasDoseError) return;
 
     const numericInitialDose = Number(initialDose);
     const numericDoseChange = Number(doseChange);
     const numericChangePeriod = Number(changePeriod);
-
-    setDayError(false);
-    setPrescriptionTypeError(false);
-    setDoseError(false);
 
     if (prescriptionType === "Stabilisation") {
       return onSubmit({
@@ -127,14 +126,16 @@ export const useQuestionnaireForm = ({
       });
     }
 
-    return onSubmit({
-      country,
-      availableDays,
-      prescriptionType,
-      initialDose: numericInitialDose,
-      doseChange: numericDoseChange,
-      changePeriod: numericChangePeriod,
-    });
+    if (prescriptionType !== "") {
+      return onSubmit({
+        country,
+        availableDays,
+        prescriptionType,
+        initialDose: numericInitialDose,
+        doseChange: numericDoseChange,
+        changePeriod: numericChangePeriod,
+      });
+    }
   };
 
   return {
