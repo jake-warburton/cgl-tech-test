@@ -2,6 +2,12 @@ import type { FormErrors, FormValues } from "../types";
 import { isValidChangePeriod } from "./isValidChangePeriod";
 import { isValidDose } from "./isValidDose";
 
+/**
+ * Validates the questionnaire values, applying only the rules
+ * relevant to the selected prescription type.
+ * @param values - the raw form values, excluding country
+ * @returns an error message per invalid field; empty when the form is valid
+ */
 export const validateForm = (
   values: Omit<FormValues, "country">,
 ): FormErrors => {
