@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Button,
   Checkbox,
@@ -17,7 +18,6 @@ import {
 
 import bankHolidays from "../../data/bank-holidays.json";
 import { countrySlugToLabel } from "./countrySlugToLabel";
-import { useState } from "react";
 
 const daysOfWeek = [
   "Monday",
@@ -37,9 +37,14 @@ interface QuestionnaireFormProps {
 
 export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
   const [country, setCountry] = useState("england-and-wales");
-  const [prescriptionType, setPrescriptionType] = useState("");
+
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [dayError, setDayError] = useState(false);
+
+  const [prescriptionType, setPrescriptionType] = useState("");
+
+  const [stabilisationDose, setStabilisationDose] = useState("");
+  const [doseError, setDoseError] = useState(false);
 
   const handleToggleDaySelected = (day: string) => {
     const dayIndex = selectedDays.indexOf(day);
@@ -51,12 +56,31 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
     return setSelectedDays(selectedDays.filter((d) => d !== day));
   };
 
+  const handleUpdateStabilisationDose = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const newStabilisationDose = e.target.value;
+
+    setStabilisationDose(newStabilisationDose);
+  };
+
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!selectedDays.length) return setDayError(true);
 
+    const numericStabilisationDose = Number(stabilisationDose);
+
+    if (
+      prescriptionType === "Stabilisation" &&
+      (!Number.isInteger(numericStabilisationDose) ||
+        numericStabilisationDose > 60 ||
+        numericStabilisationDose < 0)
+    )
+      return setDoseError(true);
+
     setDayError(false);
+    setDoseError(false);
     return onSubmit();
   };
 
@@ -123,7 +147,16 @@ export const QuestionnaireForm = ({ onSubmit }: QuestionnaireFormProps) => {
       </FormControl>
 
       {prescriptionType === "Stabilisation" && (
-        <TextField label="What is the dosage? (0-60ml)" type="number" />
+        <TextField
+          label="What is the dosage? (0-60ml)"
+          type="number"
+          value={stabilisationDose}
+          onChange={handleUpdateStabilisationDose}
+          error={doseError}
+          helperText={
+            doseError && "Dosage must be a whole number between 0 and 60"
+          }
+        />
       )}
 
       {["Reducing", "Increasing"].includes(prescriptionType) && (
