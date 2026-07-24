@@ -130,7 +130,29 @@ describe("QuestionnaireForm", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it("shows a range error for doses outside 0-60ml or fractional doses", () => {});
+  it.each(["61", "-1", "0.5"])(
+    "shows a range error and does not submit when the dosage is %s",
+    async (dose) => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      render(<QuestionnaireForm onSubmit={onSubmit} />);
+
+      await user.click(screen.getByRole("checkbox", { name: "Monday" }));
+      await user.click(screen.getByRole("radio", { name: "Stabilisation" }));
+      await user.type(
+        screen.getByRole("spinbutton", {
+          name: "What is the dosage? (0-60ml)",
+        }),
+        dose,
+      );
+      await user.click(screen.getByRole("button", { name: "Submit" }));
+
+      expect(
+        screen.getByText("Dosage must be a whole number between 0 and 60"),
+      ).toBeInTheDocument();
+      expect(onSubmit).not.toHaveBeenCalled();
+    },
+  );
 
   it("calls onSubmit once with the answers when the form is valid", () => {});
 });
