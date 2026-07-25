@@ -28,6 +28,11 @@ const reducingAnswers: QuestionnaireAnswers = {
   changePeriod: 7,
 };
 
+//  Fixture holidays are injected so the tests own the data boundary and a
+//  refresh of the bundled gov.uk data can never break them. The last date
+//  sits after every 2026 schedule below, keeping the boundary warning quiet
+const bankHolidays = ["2026-12-25", "2026-12-28"];
+
 describe("deriveWarnings", () => {
   it("returns no warnings for a typical schedule", () => {
     // Mon/Wed/Fri pattern: no pickup covers more than 3 days
@@ -41,9 +46,9 @@ describe("deriveWarnings", () => {
       day("2026-08-09", 60, 0),
     ];
 
-    expect(deriveWarnings({ schedule, answers: stabilisationAnswers })).toEqual(
-      [],
-    );
+    expect(
+      deriveWarnings({ schedule, answers: stabilisationAnswers, bankHolidays }),
+    ).toEqual([]);
   });
 
   it("warns when a single pickup covers more than four days", () => {
@@ -57,7 +62,9 @@ describe("deriveWarnings", () => {
       day("2026-09-02", 55, 55),
     ];
 
-    expect(deriveWarnings({ schedule, answers: reducingAnswers })).toEqual([
+    expect(
+      deriveWarnings({ schedule, answers: reducingAnswers, bankHolidays }),
+    ).toEqual([
       {
         type: "large-pickup",
         date: "2026-08-28",
@@ -97,7 +104,68 @@ describe("deriveWarnings", () => {
       day("2026-08-08", 0, 0),
     ];
 
-    expect(deriveWarnings({ schedule, answers: taperAnswers })).toEqual([]);
+    expect(
+      deriveWarnings({ schedule, answers: taperAnswers, bankHolidays }),
+    ).toEqual([]);
+  });
+
+  it("warns when the schedule extends beyond the bundled bank holiday data", () => {
+    //  The bundled gov.uk data currently ends on 2028-12-26; closures on
+    //  later dates are unknown, so the schedule cannot be trusted around
+    //  holidays and staff should confirm before issuing
+    const schedule = [
+      day("2028-12-27", 60, 60),
+      day("2028-12-28", 60, 60),
+      day("2028-12-29", 60, 60),
+    ];
+
+    expect(
+      deriveWarnings({
+        schedule,
+        answers: stabilisationAnswers,
+        bankHolidays: ["2028-12-25", "2028-12-26"],
+      }),
+    ).toEqual(
+      [
+        {
+          type: "beyond-holiday-data",
+          date: "2028-12-26",
+          message:
+            "The schedule extends beyond the bundled bank holiday data (last known holiday: 2028-12-26). Closures after this date cannot be checked; confirm before issuing.",
+        },
+      ],
+    );
+  });
+
+  it("warns when the schedule straddles the data boundary", () => {
+    //  Days up to the last known holiday are fully covered (the 25th and
+    //  26th roll back onto the 24th as normal); the days after it are
+    //  unverifiable, so the schedule still warns
+    const schedule = [
+      day("2028-12-24", 60, 180),
+      day("2028-12-25", 60, 0),
+      day("2028-12-26", 60, 0),
+      day("2028-12-27", 60, 60),
+      day("2028-12-28", 60, 60),
+      day("2028-12-29", 60, 60),
+    ];
+
+    expect(
+      deriveWarnings({
+        schedule,
+        answers: stabilisationAnswers,
+        bankHolidays: ["2028-12-25", "2028-12-26"],
+      }),
+    ).toEqual(
+      [
+        {
+          type: "beyond-holiday-data",
+          date: "2028-12-26",
+          message:
+            "The schedule extends beyond the bundled bank holiday data (last known holiday: 2028-12-26). Closures after this date cannot be checked; confirm before issuing.",
+        },
+      ],
+    );
   });
 
   it("warns when an increasing prescription has been capped at 60ml", () => {
@@ -129,7 +197,9 @@ describe("deriveWarnings", () => {
       day("2026-08-08", 60, 60),
     ];
 
-    expect(deriveWarnings({ schedule, answers: increasingAnswers })).toEqual([
+    expect(
+      deriveWarnings({ schedule, answers: increasingAnswers, bankHolidays }),
+    ).toEqual([
       {
         type: "dose-capped",
         date: "2026-08-07",
