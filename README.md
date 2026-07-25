@@ -1,6 +1,6 @@
 # Prescription Pick-up Schedule Calculator
 
-**Live demo:** https://prescription-pickup-calculator.pages.dev (hosted on Cloudflare Pages; `npm run deploy` builds and redeploys)
+**Live demo:** https://prescription-pickup-calculator.pages.dev (hosted on Cloudflare Pages; `npm run deploy` runs both test suites and lint, then builds and redeploys)
 
 This program is an 'instalment pick-up calculator' for controlled drug prescriptions.
 The intention is to ask the service user a questionnaire about their prescription, determine their general availability and then calculate the dosages and pick-up quantities for the two-week prescription length.
@@ -72,6 +72,16 @@ With more time I would add:
 - A calendar date picker that greys out non-collectable days, reusing the domain's isCollectable check. The current form already defaults to a collectable date and rejects non-collectable ones at submission, so the logic is there, but the native date picker doesn't support more than a range
 - A warning when the schedule extends beyond the bundled bank holiday data's coverage. In real world we would fetch this regularly and store it on the server
 - An E2E test to step through the user flow filling out the questionnaire and verifying the output. Each individual component is unit tested already so I think it would be overkill here.
+
+## Post-submission Fixes
+
+Issues found in a post-submission review pass, each fixed with the same red-green process as the original build:
+
+- **Timezone-dependent date parsing**: date-fns `format()` given a date _string_ parses it as UTC midnight but renders in local time, shifting weekdays by one on machines west of UTC. Date strings are now parsed with `parseISO` (local midnight) before formatting, so parse and render agree in any timezone. A `test:run:timezone` command runs the suite pinned to `America/New_York` to guard the regression; a west-of-UTC zone is deliberate, as UTC itself would mask the bug
+- **Completed tapers miscounted as pick-up coverage**: coverage and warning logic read a 0ml pick-up as "non-collection day", so a prescription that tapered to 0ml reported its first pick-up as covering the rest of the schedule and raised a false large-pickup warning. A covered day now also requires a rolled-back dose, since a collectable day with a dose to take always has its own pick-up
+- **DRY**: `deriveWarnings` re-implemented the coverage counting that `getPickupCoverage` already provided; it now reuses it
+- **TypeScript strict mode enabled**: the codebase compiled cleanly with no changes required, the flag was simply missing from the config
+- **Dependency hygiene**: removed unused packages (`@mui/x-date-pickers`, `dayjs`), pinned `wrangler` as a dev dependency rather than running an unpinned binary through `npx`, and gated `npm run deploy` on both test suites and lint
 
 ## Open Questions
 
