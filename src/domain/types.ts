@@ -23,7 +23,7 @@ export interface ScheduleDay {
 }
 
 export interface ScheduleWarning {
-  type: "large-pickup" | "dose-capped";
+  type: "large-pickup" | "dose-capped" | "beyond-holiday-data";
   date?: string;
   message: string;
 }

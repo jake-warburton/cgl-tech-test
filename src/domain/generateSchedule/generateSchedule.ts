@@ -18,15 +18,17 @@ export interface ScheduleResult {
 export const generateSchedule = (
   answers: QuestionnaireAnswers,
 ): ScheduleResult => {
+  const bankHolidays = getBankHolidayDates(answers.country);
+
   const schedule = distributePickups({
     dates: buildDateRange(answers.startDate, PRESCRIPTION_LENGTH_DAYS),
     doses: calculateDailyDoses(answers, PRESCRIPTION_LENGTH_DAYS),
     availableDays: answers.availableDays,
-    bankHolidays: getBankHolidayDates(answers.country),
+    bankHolidays,
   });
 
   return {
     schedule,
-    warnings: deriveWarnings({ schedule, answers }),
+    warnings: deriveWarnings({ schedule, answers, bankHolidays }),
   };
 };

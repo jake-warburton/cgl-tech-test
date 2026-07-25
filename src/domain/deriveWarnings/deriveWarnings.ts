@@ -1,3 +1,4 @@
+import { parseISO } from "date-fns";
 import { getPickupCoverage } from "../getPickupCoverage/getPickupCoverage";
 import type {
   QuestionnaireAnswers,
@@ -8,6 +9,7 @@ import type {
 interface DeriveWarningsArgs {
   schedule: ScheduleDay[];
   answers: QuestionnaireAnswers;
+  bankHolidays: string[];
 }
 
 //  The story describes 2 to 3 pharmacy visits a week as typical, so a
@@ -20,13 +22,30 @@ const MAX_TYPICAL_PICKUP_DAYS = 4;
  * block the schedule: we calculate, the prescriber decides.
  * @param schedule - the distributed schedule, one entry per day
  * @param answers  - the answers to the questionnaire determine prescription type and dose increase/reduction
+ * @param bankHolidays - the known bank holidays as "yyyy-MM-dd" strings, injected so tests control the data boundary
  * @returns a warning per finding; empty when nothing needs attention
  */
 export const deriveWarnings = ({
   schedule,
   answers,
+  bankHolidays,
 }: DeriveWarningsArgs): ScheduleWarning[] => {
   const warnings: ScheduleWarning[] = [];
+
+  //  If the prescription extends beyond the last stored bank holiday date
+  //  Warn that it is possible that there is a bank holiday during the prescription
+  //  And that our data is potentially stale
+  const lastKnownBankHoliday = bankHolidays[bankHolidays.length - 1];
+  if (
+    parseISO(schedule[schedule.length - 1].date) >
+    parseISO(lastKnownBankHoliday)
+  ) {
+    warnings.push({
+      type: "beyond-holiday-data",
+      date: lastKnownBankHoliday,
+      message: `The schedule extends beyond the bundled bank holiday data (last known holiday: ${lastKnownBankHoliday}). Closures after this date cannot be checked; confirm before issuing.`,
+    });
+  }
 
   if (answers.prescriptionType === "Increasing") {
     const { initialDose, doseChange, changePeriod } = answers;
