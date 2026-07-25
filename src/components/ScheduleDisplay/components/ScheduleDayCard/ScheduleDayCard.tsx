@@ -1,4 +1,4 @@
-import { Card, Stack, Typography } from "@mui/material";
+import { Box, Card, Stack, Typography } from "@mui/material";
 import { DayChip } from "../DayChip/DayChip";
 import type { PickupCoverage } from "../../../../domain/getPickupCoverage/getPickupCoverage";
 import type { ScheduleDay } from "../../../../domain/types";
@@ -72,26 +72,31 @@ export const ScheduleDisplayCard = ({
             justifyContent: { md: "space-between" },
           }}
         >
-          {/* mobile: date with weekday */}
           <Typography
             sx={{
               fontSize: "0.7rem",
               fontWeight: 600,
               whiteSpace: "nowrap",
-              display: { xs: "block", md: "none" },
             }}
           >
-            {format(parseISO(day.date), "EEE d MMM")}
-          </Typography>
-          {/* narrow grid cards: date only */}
-          <Typography
-            sx={{
-              fontSize: "0.7rem",
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-              display: { xs: "none", md: "block" },
-            }}
-          >
+            {/* on the desktop grid the weekday is shown by column
+                position, which a screen reader cannot perceive, so it
+                stays in the accessibility tree and is only unpainted */}
+            <Box
+              component="span"
+              sx={(theme) => ({
+                [theme.breakpoints.up("md")]: {
+                  position: "absolute",
+                  width: "1px",
+                  height: "1px",
+                  overflow: "hidden",
+                  clip: "rect(0 0 0 0)",
+                  whiteSpace: "nowrap",
+                },
+              })}
+            >
+              {`${format(parseISO(day.date), "EEE")} `}
+            </Box>
             {format(parseISO(day.date), "d MMM")}
           </Typography>
 
@@ -102,8 +107,11 @@ export const ScheduleDisplayCard = ({
           )}
         </Stack>
 
+        {/* variant styles only; an h6 element would put every amount in
+            the document's heading outline */}
         <Typography
           variant="h6"
+          component="p"
           sx={{
             color: amountColor(day),
             fontWeight: 700,

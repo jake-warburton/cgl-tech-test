@@ -26,7 +26,9 @@ describe("ScheduleDisplay", () => {
     const days = screen.getAllByRole("listitem");
     expect(days).toHaveLength(3);
 
-    expect(within(days[0]).getByText("Mon 24 Aug")).toBeInTheDocument();
+    //  the weekday is part of the accessible text even on the desktop
+    //  grid, where it is conveyed visually by column position
+    expect(days[0]).toHaveTextContent("Mon 24 Aug");
     expect(within(days[0]).getByText("120ml")).toBeInTheDocument();
 
     // the pick-up covering two days shows its per-day breakdown
@@ -59,5 +61,23 @@ describe("ScheduleDisplay", () => {
     render(<ScheduleDisplay schedule={schedule} warnings={[]} />);
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("moves focus to the schedule heading so submitting is announced", () => {
+    render(<ScheduleDisplay schedule={schedule} warnings={[]} />);
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Schedule" }),
+    ).toHaveFocus();
+  });
+
+  it("exposes the days as a named list without fake headings", () => {
+    render(<ScheduleDisplay schedule={schedule} warnings={[]} />);
+
+    expect(screen.getByRole("list", { name: "Schedule" })).toBeInTheDocument();
+
+    //  the pick-up amounts are styled like headings but must not appear
+    //  in the document outline; only the real heading does
+    expect(screen.getAllByRole("heading")).toHaveLength(1);
   });
 });
