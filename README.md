@@ -15,7 +15,7 @@ The tool is staff-facing: the story's wording ("asks the user... is the service 
 - Non-collection days show 0ml; their dose is added to the previous collectable day
 - Consecutive non-collection days cascade into the last collectable day before them
 - Medication must be in hand before a non-collection day, so doses roll backward, never forward: consumption never pauses
-- The start date must be a collectable day; the date picker enforces this and defaults to the next collectable date
+- The start date must be a collectable day; the form defaults it to the next collectable date for the selected availability and rejects if the user tries to select a non-collectable date
 
 ## Assumptions
 
@@ -30,7 +30,7 @@ These are deliberate decisions where the story is ambiguous or silent. Each one 
 
 ## Caveats
 
-- Bank holiday data is bundled from [gov.uk](https://www.gov.uk/bank-holidays.json); coverage currently ends in 2028, and the program warns if a schedule falls beyond it
+- Bank holiday data is bundled from [gov.uk](https://www.gov.uk/bank-holidays.json); coverage currently ends in 2028. Warning when a schedule extends beyond the data's coverage is on the roadmap below
 - In a real-world system I would not bundle this data: a daily server-side CRON job would re-fetch the gov.uk JSON (bank holidays can be announced at short notice: the Queen's funeral in 2022 had ~10 days' notice, and there was a chance for another English bank holiday if England won the World Cup), keeping a last-known-good copy locally and raising an alert if fetching failed after some retries. For this test's scope, bundled data with a documented retrieval date keeps the program deterministic and offline-runnable
 - Pharmacy opening hours are out of scope; bank holidays are the only closures modelled
 
@@ -64,6 +64,12 @@ This test needs no database, but in a real system issued schedules would be pers
 
 - Commits will follow a Red, Green, Refactor cycle when it benefits implementation and clarity for reviewers to see my step-by-step process
 - Scaffold first, then Stage 1 and then Stage 2 as per the user story formatting.
+
+With more time I would add:
+
+- A calendar date picker that greys out non-collectable days, reusing the domain's isCollectable check. The current form already defaults to a collectable date and rejects non-collectable ones at submission, so the logic is there, but the native date picker doesn't support more than a range
+- A warning when the schedule extends beyond the bundled bank holiday data's coverage. In real world we would fetch this regularly and store it on the server
+- An E2E test to step through the user flow filling out the questionnaire and verifying the output. Each individual component is unit tested already so I think it would be overkill here.
 
 ## Open Questions
 
