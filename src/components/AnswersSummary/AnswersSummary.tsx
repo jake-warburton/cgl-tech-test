@@ -23,24 +23,30 @@ const dosageDescription = (answers: QuestionnaireAnswers) => {
 
 export const AnswersSummary = ({ answers, onEdit }: AnswersSummaryProps) => (
   <Card component="section" aria-label="Answers summary" sx={{ p: 2 }}>
-    <Stack
-      spacing={{ xs: 0.5, md: 2 }}
-      useFlexGap
-      sx={{
-        flexDirection: { xs: "column", md: "row" },
-        alignItems: { xs: "flex-start", md: "center" },
-        justifyContent: { md: "space-between" },
-      }}
-    >
-      <Typography sx={{ fontWeight: 600 }}>
-        {`${answers.prescriptionType} prescription`}
+    <Stack spacing={0.5}>
+      <Stack
+        spacing={{ xs: 0.5, md: 2 }}
+        useFlexGap
+        sx={{
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-start", md: "center" },
+        }}
+      >
+        <Typography sx={{ fontWeight: 600 }}>
+          {`${answers.prescriptionType} prescription`}
+        </Typography>
+        <Typography>{dosageDescription(answers)}</Typography>
+        <Button
+          variant="contained"
+          onClick={onEdit}
+          sx={{ ml: { md: "auto" } }}
+        >
+          Edit answers
+        </Button>
+      </Stack>
+      <Typography sx={{ color: "text.secondary" }}>
+        {`${answers.availableDays.map((dayName) => dayName.slice(0, 3)).join(", ")} · Starts ${format(parseISO(answers.startDate), "EEE d MMM yyyy")} · ${countrySlugToLabel(answers.country)}`}
       </Typography>
-      <Typography>{dosageDescription(answers)}</Typography>
-      <Typography>{`Starts ${format(parseISO(answers.startDate), "EEE d MMM yyyy")}`}</Typography>
-      <Typography>{countrySlugToLabel(answers.country)}</Typography>
-      <Button variant="contained" onClick={onEdit}>
-        Edit answers
-      </Button>
     </Stack>
   </Card>
 );
