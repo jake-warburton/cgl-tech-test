@@ -29,10 +29,11 @@ These are deliberate decisions where the story is ambiguous or silent. Each one 
 - Whole ml only: fractional doses are rejected to avoid floating-point rounding errors. If finer doses were needed I would store tenths of a millilitre as integers
 - The 0–60ml limit applies to a single day's dose; a pick-up covering several days can total more, as each day is dispensed as its own labelled amount
 - No cap is enforced on pick-up size or frequency; unusually large or infrequent pick-ups produce a warning instead. I could find no statutory per-collection limit ([NHSBSA guidance](https://faq.nhsbsa.nhs.uk/knowledgebase/article/KA-01574/en-us) confirms a maximum 14-day supply on instalment prescriptions, but no per-collection cap); service policy _pending confirmation_
+- The start date is not capped either: forward-dating a controlled drug prescription is permitted, with the [28-day validity](https://cpe.org.uk/dispensing-and-supply/dispensing-process/dispensing-controlled-drugs/) running from the appropriate date the prescriber writes on it, so there is no statutory limit to encode. A far-future date instead triggers the bank-holiday-coverage warning below; whether unusually distant start dates should also be flagged as likely input error is a question for the service
 
 ## Caveats
 
-- Bank holiday data is bundled from [gov.uk](https://www.gov.uk/bank-holidays.json); coverage currently ends in 2028. Warning when a schedule extends beyond the data's coverage is on the roadmap below
+- Bank holiday data is bundled from [gov.uk](https://www.gov.uk/bank-holidays.json); coverage currently ends in 2028. A schedule extending past the last known holiday produces a warning, since closures beyond that date cannot be checked
 - In a real-world system I would not bundle this data: a daily server-side CRON job would re-fetch the gov.uk JSON (bank holidays can be announced at short notice: the Queen's funeral in 2022 had ~10 days' notice, and there was a chance for another English bank holiday if England won the World Cup), keeping a last-known-good copy locally and raising an alert if fetching failed after some retries. For this test's scope, bundled data with a documented retrieval date keeps the program deterministic and offline-runnable
 - Pharmacy opening hours are out of scope; bank holidays are the only closures modelled
 
@@ -70,8 +71,8 @@ This test needs no database, but in a real system issued schedules would be pers
 With more time I would add:
 
 - A calendar date picker that greys out non-collectable days, reusing the domain's isCollectable check. The current form already defaults to a collectable date and rejects non-collectable ones at submission, so the logic is there, but the native date picker doesn't support more than a range
-- A warning when the schedule extends beyond the bundled bank holiday data's coverage. In real world we would fetch this regularly and store it on the server
 - An E2E test to step through the user flow filling out the questionnaire and verifying the output. Each individual component is unit tested already so I think it would be overkill here.
+- Focus management on the return trip: submitting moves focus to the schedule so screen readers announce the result, but "Edit answers" returns to the form without an equivalent landing point
 
 ## Post-submission Fixes
 
@@ -82,6 +83,9 @@ Issues found in a post-submission review pass, each fixed with the same red-gree
 - **DRY**: `deriveWarnings` re-implemented the coverage counting that `getPickupCoverage` already provided; it now reuses it
 - **TypeScript strict mode enabled**: the codebase compiled cleanly with no changes required, the flag was simply missing from the config
 - **Dependency hygiene**: removed unused packages (`@mui/x-date-pickers`, `dayjs`), pinned `wrangler` as a dev dependency rather than running an unpinned binary through `npx`, and gated `npm run deploy` on both test suites and lint
+- **Bank holiday data boundary warning**: delivered the roadmap item — a schedule extending past the last known bank holiday now warns that closures beyond it cannot be checked. `deriveWarnings` also now receives the holidays from `generateSchedule` instead of fetching its own, so it is a pure function and its tests inject fixture holidays rather than depending on where the bundled data happens to end
+- **Available days on the answers summary**: the days drive the whole collection pattern but were the one answer staff could not verify before using the schedule. The summary now leads its schedule line with them, restructured to two rows after screenshotting the alternatives
+- **Screen reader accessibility**: submitting now moves focus to a results heading so the change of view is announced (the form is hidden, not unmounted, so focus previously vanished); the schedule is a named list; pick-up amounts no longer render as `h6` elements polluting the heading outline; and each day card speaks its weekday, which the desktop grid otherwise conveys only by column position
 
 ## Open Questions
 
