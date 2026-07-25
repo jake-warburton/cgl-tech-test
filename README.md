@@ -1,5 +1,7 @@
 # Prescription Pick-up Schedule Calculator
 
+**Live demo:** https://prescription-pickup-calculator.pages.dev (hosted on Cloudflare Pages; `npm run deploy` builds and redeploys)
+
 This program is an 'instalment pick-up calculator' for controlled drug prescriptions.
 The intention is to ask the service user a questionnaire about their prescription, determine their general availability and then calculate the dosages and pick-up quantities for the two-week prescription length.
 
