@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns";
 import { daysOfWeek } from "../../domain/constants";
 import { getPickupCoverage } from "../../domain/getPickupCoverage/getPickupCoverage";
 import type { ScheduleDay, ScheduleWarning } from "../../domain/types";
+import { visuallyHidden } from "../styles";
 import { ScheduleDisplayCard } from "./components/ScheduleDayCard/ScheduleDayCard";
 
 interface ScheduleDisplayProps {
@@ -13,17 +14,6 @@ interface ScheduleDisplayProps {
 }
 
 const weekdayHeaders = daysOfWeek.map((dayName) => dayName.slice(0, 3));
-
-//  Kept in the accessibility tree but not painted; the design has no
-//  visible results heading, but screen readers need one to land on
-const visuallyHidden = {
-  position: "absolute",
-  width: "1px",
-  height: "1px",
-  overflow: "hidden",
-  clip: "rect(0 0 0 0)",
-  whiteSpace: "nowrap",
-} as const;
 
 //  Empty calendar cells filling the days before the schedule starts and
 //  after it ends, so cards sit under their weekday headers. Presentation
@@ -38,7 +28,8 @@ const placeholders = (count: number, position: string) =>
       aria-hidden
       sx={{
         display: { xs: "none", md: "block" },
-        border: "1px dashed #d7d3dc",
+        border: "1px dashed",
+        borderColor: "divider",
         borderRadius: 1,
         aspectRatio: "1 / 1",
         boxSizing: "border-box",

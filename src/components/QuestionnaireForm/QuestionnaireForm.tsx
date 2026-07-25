@@ -31,9 +31,10 @@ interface QuestionnaireFormProps {
   onSubmit: (obj: QuestionnaireAnswers) => void;
 }
 
-//  Grey inset card grouping the dose questions for the selected type
+//  Grey inset card grouping the dose questions for the selected type,
+//  matching the app background so it reads as a cut-out of the page
 const doseCardStyles = {
-  bgcolor: "#f4f3f6",
+  bgcolor: "background.default",
   borderRadius: 1,
   p: 2,
 };

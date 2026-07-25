@@ -2,6 +2,7 @@ import { Box, Card, Stack, Typography } from "@mui/material";
 import { DayChip } from "../DayChip/DayChip";
 import type { PickupCoverage } from "../../../../domain/getPickupCoverage/getPickupCoverage";
 import type { ScheduleDay } from "../../../../domain/types";
+import { visuallyHidden } from "../../../styles";
 import { format, parseISO } from "date-fns";
 
 interface ScheduleDisplayCardProps {
@@ -31,6 +32,12 @@ const amountColor = (day: ScheduleDay) => {
   if (day.pickup === 0) return "text.secondary";
   return "primary.main";
 };
+
+//  Small print shared by the coverage lines and the no pick-up label
+const captionStyles = {
+  fontSize: "0.7rem",
+  color: "text.secondary",
+} as const;
 
 
 export const ScheduleDisplayCard = ({
@@ -85,14 +92,7 @@ export const ScheduleDisplayCard = ({
             <Box
               component="span"
               sx={(theme) => ({
-                [theme.breakpoints.up("md")]: {
-                  position: "absolute",
-                  width: "1px",
-                  height: "1px",
-                  overflow: "hidden",
-                  clip: "rect(0 0 0 0)",
-                  whiteSpace: "nowrap",
-                },
+                [theme.breakpoints.up("md")]: visuallyHidden,
               })}
             >
               {`${format(parseISO(day.date), "EEE")} `}
@@ -121,9 +121,7 @@ export const ScheduleDisplayCard = ({
       </Stack>
 
       {!coverage && (
-        <Typography
-          sx={{ fontSize: "0.7rem", color: "text.secondary", mt: "auto" }}
-        >
+        <Typography sx={{ ...captionStyles, mt: "auto" }}>
           No pick-up
         </Typography>
       )}
@@ -132,15 +130,15 @@ export const ScheduleDisplayCard = ({
         <Stack sx={{ mt: "auto" }}>
           {coverage.days > 1 && (
             <>
-              <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>
+              <Typography sx={captionStyles}>
                 {`Covers ${coverage.days} days`}
               </Typography>
-              <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>
+              <Typography sx={captionStyles}>
                 {coverageRange(day.date, coverage.endDate)}
               </Typography>
             </>
           )}
-          <Typography sx={{ fontSize: "0.7rem", color: "text.secondary" }}>
+          <Typography sx={captionStyles}>
             {coverage.days > 1
               ? `${coverage.doses.join(" · ")} ml/day`
               : `${coverage.doses[0]} ml`}
