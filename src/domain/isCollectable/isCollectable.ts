@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import type { DayOfWeek } from "../types";
 
 interface IsCollectableArgs {
@@ -12,5 +12,8 @@ export const isCollectable = ({
   availableDays,
   bankHolidays,
 }: IsCollectableArgs): boolean =>
-  availableDays.includes(format(date, "eeee") as DayOfWeek) &&
+  //  parseISO reads a date-only string as local midnight, matching how
+  //  format renders it; format(string) would parse as UTC midnight and
+  //  shift the weekday on machines west of UTC
+  availableDays.includes(format(parseISO(date), "eeee") as DayOfWeek) &&
   !bankHolidays.includes(date);

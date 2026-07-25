@@ -2,7 +2,7 @@ import { Card, Stack, Typography } from "@mui/material";
 import { DayChip } from "../DayChip/DayChip";
 import type { PickupCoverage } from "../../../../domain/getPickupCoverage/getPickupCoverage";
 import type { ScheduleDay } from "../../../../domain/types";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 interface ScheduleDisplayCardProps {
   day: ScheduleDay;
@@ -10,7 +10,9 @@ interface ScheduleDisplayCardProps {
 }
 
 //  e.g. "Wed 26 to Thu 27 Aug", repeating the month only when it changes
-const coverageRange = (start: string, end: string) => {
+const coverageRange = (startDate: string, endDate: string) => {
+  const start = parseISO(startDate);
+  const end = parseISO(endDate);
   const sameMonth = format(start, "MMM yyyy") === format(end, "MMM yyyy");
   return `${format(start, sameMonth ? "EEE d" : "EEE d MMM")} to ${format(end, "EEE d MMM")}`;
 };
@@ -79,7 +81,7 @@ export const ScheduleDisplayCard = ({
               display: { xs: "block", md: "none" },
             }}
           >
-            {format(day.date, "EEE d MMM")}
+            {format(parseISO(day.date), "EEE d MMM")}
           </Typography>
           {/* narrow grid cards: date only */}
           <Typography
@@ -90,7 +92,7 @@ export const ScheduleDisplayCard = ({
               display: { xs: "none", md: "block" },
             }}
           >
-            {format(day.date, "d MMM")}
+            {format(parseISO(day.date), "d MMM")}
           </Typography>
 
           {day.pickup > 0 && <DayChip label="PICK-UP" color="#ef5ba1" />}

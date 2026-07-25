@@ -1,5 +1,5 @@
 import { Button, Card, Stack, Typography } from "@mui/material";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 import { countrySlugToLabel } from "../QuestionnaireForm/countrySlugToLabel";
 import type { QuestionnaireAnswers } from "../../domain/types";
@@ -36,7 +36,7 @@ export const AnswersSummary = ({ answers, onEdit }: AnswersSummaryProps) => (
         {`${answers.prescriptionType} prescription`}
       </Typography>
       <Typography>{dosageDescription(answers)}</Typography>
-      <Typography>{`Starts ${format(answers.startDate, "EEE d MMM yyyy")}`}</Typography>
+      <Typography>{`Starts ${format(parseISO(answers.startDate), "EEE d MMM yyyy")}`}</Typography>
       <Typography>{countrySlugToLabel(answers.country)}</Typography>
       <Button variant="contained" onClick={onEdit}>
         Edit answers

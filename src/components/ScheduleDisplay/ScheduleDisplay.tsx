@@ -1,5 +1,5 @@
 import { Alert, Box, Stack, Typography } from "@mui/material";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 import { daysOfWeek } from "../../domain/constants";
 import { getPickupCoverage } from "../../domain/getPickupCoverage/getPickupCoverage";
@@ -39,7 +39,7 @@ export const ScheduleDisplay = ({
   warnings,
 }: ScheduleDisplayProps) => {
   //  "i" is the ISO day of week, Monday = 1
-  const leadingGap = Number(format(schedule[0].date, "i")) - 1;
+  const leadingGap = Number(format(parseISO(schedule[0].date), "i")) - 1;
   const trailingGap = (7 - ((leadingGap + schedule.length) % 7)) % 7;
 
   return (
