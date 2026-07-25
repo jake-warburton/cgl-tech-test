@@ -24,7 +24,8 @@ export const getPickupCoverage = (
   let days = 1;
   while (
     index + days < schedule.length &&
-    schedule[index + days].pickup === 0
+    schedule[index + days].pickup === 0 &&
+    schedule[index + days].dose > 0
   ) {
     days += 1;
   }

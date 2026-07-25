@@ -54,7 +54,8 @@ export const deriveWarnings = ({
     let daysCovered = 1;
     while (
       index + daysCovered < schedule.length &&
-      schedule[index + daysCovered].pickup === 0
+      schedule[index + daysCovered].pickup === 0 &&
+      schedule[index + daysCovered].dose > 0
     ) {
       daysCovered += 1;
     }
