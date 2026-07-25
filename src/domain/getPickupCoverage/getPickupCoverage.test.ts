@@ -47,4 +47,24 @@ describe("getPickupCoverage", () => {
   it("returns null for a day with no pick-up", () => {
     expect(getPickupCoverage(schedule, 1)).toBeNull();
   });
+
+  it("does not count collectable 0ml taper days as covered by an earlier pick-up", () => {
+    //  A 1ml prescription reducing by 1ml daily completes its taper after
+    //  day one; the days after are collectable but have nothing to collect,
+    //  so they are not covered by the first pick-up
+    const taperSchedule = [
+      day("2026-08-03", 1, 1),
+      day("2026-08-04", 0, 0),
+      day("2026-08-05", 0, 0),
+      day("2026-08-06", 0, 0),
+      day("2026-08-07", 0, 0),
+      day("2026-08-08", 0, 0),
+    ];
+
+    expect(getPickupCoverage(taperSchedule, 0)).toEqual({
+      days: 1,
+      endDate: "2026-08-03",
+      doses: [1],
+    });
+  });
 });

@@ -67,6 +67,39 @@ describe("deriveWarnings", () => {
     ]);
   });
 
+  it("does not warn when a completed taper leaves collectable 0ml days", () => {
+    //  A 1ml prescription reducing by 1ml daily: the taper completes after
+    //  day one, so the 0ml days that follow are collectable days with
+    //  nothing to collect, not days covered by a large first pick-up
+    const taperAnswers: QuestionnaireAnswers = {
+      country: "england-and-wales",
+      startDate: "2026-08-03",
+      availableDays: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+      prescriptionType: "Reducing",
+      initialDose: 1,
+      doseChange: 1,
+      changePeriod: 1,
+    };
+    const schedule = [
+      day("2026-08-03", 1, 1),
+      day("2026-08-04", 0, 0),
+      day("2026-08-05", 0, 0),
+      day("2026-08-06", 0, 0),
+      day("2026-08-07", 0, 0),
+      day("2026-08-08", 0, 0),
+    ];
+
+    expect(deriveWarnings({ schedule, answers: taperAnswers })).toEqual([]);
+  });
+
   it("warns when an increasing prescription has been capped at 60ml", () => {
     // 55ml increasing by 4ml every 2 days would reach 63ml on the fifth
     // day; the dose calculation caps it at 60ml instead
