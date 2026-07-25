@@ -20,7 +20,9 @@ describe("AnswersSummary", () => {
     const summary = screen.getByRole("region", { name: "Answers summary" });
     expect(summary).toHaveTextContent("Stabilisation prescription");
     expect(summary).toHaveTextContent("30ml daily");
-    expect(summary).toHaveTextContent("Starts Mon 24 Aug 2026");
+    //  the available days lead the schedule line so staff can verify the
+    //  collection pattern at a glance
+    expect(summary).toHaveTextContent("Mon · Starts Mon 24 Aug 2026");
     expect(summary).toHaveTextContent("England and Wales");
   });
 
@@ -42,7 +44,7 @@ describe("AnswersSummary", () => {
     expect(summary).toHaveTextContent(
       "60ml daily, reducing by 5ml every 7 days",
     );
-    expect(summary).toHaveTextContent("Starts Fri 28 Aug 2026");
+    expect(summary).toHaveTextContent("Mon, Fri · Starts Fri 28 Aug 2026");
     expect(summary).toHaveTextContent("Scotland");
   });
 
