@@ -1,3 +1,4 @@
+import { getPickupCoverage } from "../getPickupCoverage/getPickupCoverage";
 import type {
   QuestionnaireAnswers,
   ScheduleDay,
@@ -45,26 +46,14 @@ export const deriveWarnings = ({
   }
 
   schedule.forEach((day, index) => {
-    if (day.pickup === 0) return;
+    const coverage = getPickupCoverage(schedule, index);
+    if (!coverage) return;
 
-    //  A pick-up covers its own day plus the run of 0ml days after it,
-    //  whose doses were rolled back onto it. Leading 0ml days (the
-    //  roll-forward edge case) are undercounted here, which errs
-    //  towards silence; that state raises its own warning instead
-    let daysCovered = 1;
-    while (
-      index + daysCovered < schedule.length &&
-      schedule[index + daysCovered].pickup === 0 &&
-      schedule[index + daysCovered].dose > 0
-    ) {
-      daysCovered += 1;
-    }
-
-    if (daysCovered > MAX_TYPICAL_PICKUP_DAYS) {
+    if (coverage.days > MAX_TYPICAL_PICKUP_DAYS) {
       warnings.push({
         type: "large-pickup",
         date: day.date,
-        message: `The pick-up on ${day.date} covers ${daysCovered} days of medication. Confirm this is appropriate before issuing.`,
+        message: `The pick-up on ${day.date} covers ${coverage.days} days of medication. Confirm this is appropriate before issuing.`,
       });
     }
   });
