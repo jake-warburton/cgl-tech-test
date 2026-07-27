@@ -2,10 +2,17 @@
 
 **Live demo:** https://prescription-pickup-calculator.pages.dev (hosted on Cloudflare Pages; `npm run deploy` runs both test suites and lint, then builds and redeploys)
 
-This program is an 'instalment pick-up calculator' for controlled drug prescriptions.
-The intention is to ask the service user a questionnaire about their prescription, determine their general availability and then calculate the dosages and pick-up quantities for the two-week prescription length.
+This program is an 'instalment pick-up calculator' for controlled drug prescriptions: a questionnaire captures the prescription details and the service user's general availability, then the tool calculates the dosages and pick-up quantities for the two-week prescription length.
 
-The tool is staff-facing: the story's wording ("asks the user... is the service user generally available") suggests the operator and the service user are different people, so a staff member fills in the questionnaire while talking with the service user, and all questions are phrased in the third person.
+The tool is staff-facing: the story's wording ("asks the user... is the service user generally available") suggests the operator and the service user are different people, so all questions are phrased in the third person.
+
+## Running Locally
+
+```bash
+npm install
+npm run dev        # start the dev server
+npm run test:run   # run the test suite once (npm test for watch mode)
+```
 
 ## Business Logic
 
@@ -24,17 +31,17 @@ The tool is staff-facing: the story's wording ("asks the user... is the service 
 These are deliberate decisions where the story is ambiguous or silent. Each one can be revisited if a stakeholder answer says otherwise.
 
 - Bank holidays are treated as pharmacy closure days, so the same 0ml + roll-back rule applies. The [Home Office approved wording](https://www.gov.uk/government/publications/circular-0272015-approved-mandatory-requisition-form-and-home-office-approved-wording/circular-0272015-approved-mandatory-requisition-form-and-home-office-approved-wording) for instalment prescriptions supports supplying instalments due on a closed day on a prior suitable day
-- "UK bank holidays" is not a single calendar: gov.uk publishes separate lists for England & Wales, Scotland and Northern Ireland. The first question in the UI is therefore a jurisdiction selector, populated from whatever divisions are present in the data and defaulting to England & Wales. In a real system this would more likely come from the service's own location records than be asked each time (for context, CGL operates in England, Wales and Scotland)
+- "UK bank holidays" is not a single calendar: gov.uk publishes separate lists for England & Wales, Scotland and Northern Ireland. The first question in the UI is therefore a jurisdiction selector, populated from the divisions in the data and defaulting to England & Wales. In a real system this would more likely come from the service's own location records than be asked each time (for context, CGL operates in England, Wales and Scotland)
 - "Generally available" is read as one repeating weekly pattern; in the real world it might be good to allow availability to be selected across the entire two weeks
 - Whole ml only: fractional doses are rejected to avoid floating-point rounding errors. If finer doses were needed I would store tenths of a millilitre as integers
 - The 0–60ml limit applies to a single day's dose; a pick-up covering several days can total more, as each day is dispensed as its own labelled amount
-- No cap is enforced on pick-up size or frequency; unusually large or infrequent pick-ups produce a warning instead. I could find no statutory per-collection limit ([NHSBSA guidance](https://faq.nhsbsa.nhs.uk/knowledgebase/article/KA-01574/en-us) confirms a maximum 14-day supply on instalment prescriptions, but no per-collection cap); service policy _pending confirmation_
-- The start date is not capped either: forward-dating a controlled drug prescription is permitted, with the [28-day validity](https://cpe.org.uk/dispensing-and-supply/dispensing-process/dispensing-controlled-drugs/) running from the appropriate date the prescriber writes on it, so there is no statutory limit to encode. A far-future date instead triggers the bank-holiday-coverage warning below; whether unusually distant start dates should also be flagged as likely input error is a question for the service
+- No cap is enforced on pick-up size or frequency; unusually large or infrequent pick-ups produce a warning instead. I could find no statutory per-collection limit ([NHSBSA guidance](https://faq.nhsbsa.nhs.uk/knowledgebase/article/KA-01574/en-us) confirms a maximum 14-day supply on instalment prescriptions, but no per-collection cap)
+- The start date is not capped either: forward-dating a controlled drug prescription is permitted ([28-day validity](https://cpe.org.uk/dispensing-and-supply/dispensing-process/dispensing-controlled-drugs/) runs from the date the prescriber writes on it), so there is no statutory limit to encode. A far-future date triggers the bank-holiday-coverage warning below; whether it should also be flagged as a likely input error is a question for the service
 
 ## Caveats
 
 - Bank holiday data is bundled from [gov.uk](https://www.gov.uk/bank-holidays.json); coverage currently ends in 2028. A schedule extending past the last known holiday produces a warning, since closures beyond that date cannot be checked
-- In a real-world system I would not bundle this data: a daily server-side CRON job would re-fetch the gov.uk JSON (bank holidays can be announced at short notice: the Queen's funeral in 2022 had ~10 days' notice, and there was a chance for another English bank holiday if England won the World Cup), keeping a last-known-good copy locally and raising an alert if fetching failed after some retries. For this test's scope, bundled data with a documented retrieval date keeps the program deterministic and offline-runnable
+- In a real-world system I would not bundle this data: a daily server-side CRON job would re-fetch the gov.uk JSON (bank holidays can be announced at short notice: the Queen's funeral in 2022 had ~10 days' notice), keeping a last-known-good copy locally and raising an alert if fetching failed after some retries. For this test's scope, bundled data with a documented retrieval date keeps the program deterministic and offline-runnable
 - Pharmacy opening hours are out of scope; bank holidays are the only closures modelled
 
 ## Security Considerations
@@ -65,13 +72,13 @@ This test needs no database, but in a real system issued schedules would be pers
 
 ## Roadmap
 
-- Commits will follow a Red, Green, Refactor cycle when it benefits implementation and clarity for reviewers to see my step-by-step process
-- Scaffold first, then Stage 1 and then Stage 2 as per the user story formatting.
+- Commits follow a Red, Green, Refactor cycle where it helps reviewers see the step-by-step process
+- Scaffold first, then Stage 1, then Stage 2, matching the user story's structure
 
 With more time I would add:
 
-- A calendar date picker that greys out non-collectable days, reusing the domain's isCollectable check. The current form already defaults to a collectable date and rejects non-collectable ones at submission, so the logic is there, but the native date picker doesn't support more than a range
-- An E2E test to step through the user flow filling out the questionnaire and verifying the output. Each individual component is unit tested already so I think it would be overkill here.
+- A calendar date picker that greys out non-collectable days, reusing the domain's isCollectable check. The form already defaults to a collectable date and rejects non-collectable ones; the native date picker just can't grey out arbitrary days
+- An E2E test stepping through the questionnaire to the schedule, though with every component unit tested I think it would be overkill here
 - Focus management on the return trip: submitting moves focus to the schedule so screen readers announce the result, but "Edit answers" returns to the form without an equivalent landing point
 
 ## Post-submission Fixes
@@ -83,8 +90,8 @@ Issues found in a post-submission review pass, each fixed with the same red-gree
 - **DRY**: `deriveWarnings` re-implemented the coverage counting that `getPickupCoverage` already provided; it now reuses it
 - **TypeScript strict mode enabled**: the codebase compiled cleanly with no changes required, the flag was simply missing from the config
 - **Dependency hygiene**: removed unused packages (`@mui/x-date-pickers`, `dayjs`), pinned `wrangler` as a dev dependency rather than running an unpinned binary through `npx`, and gated `npm run deploy` on both test suites and lint
-- **Bank holiday data boundary warning**: delivered the roadmap item — a schedule extending past the last known bank holiday now warns that closures beyond it cannot be checked. `deriveWarnings` also now receives the holidays from `generateSchedule` instead of fetching its own, so it is a pure function and its tests inject fixture holidays rather than depending on where the bundled data happens to end
-- **Available days on the answers summary**: the days drive the whole collection pattern but were the one answer staff could not verify before using the schedule. The summary now leads its schedule line with them, restructured to two rows after screenshotting the alternatives
+- **Bank holiday data boundary warning**: delivered the roadmap item — a schedule extending past the last known bank holiday now warns that closures beyond it cannot be checked. `deriveWarnings` also now receives the holidays from `generateSchedule` instead of fetching its own, so its tests inject fixture holidays rather than depending on where the bundled data ends
+- **Available days on the answers summary**: the days drive the whole collection pattern but were the one answer staff could not verify before using the schedule. The summary now leads its schedule line with them
 - **Screen reader accessibility**: submitting now moves focus to a results heading so the change of view is announced (the form is hidden, not unmounted, so focus previously vanished); the schedule is a named list; pick-up amounts no longer render as `h6` elements polluting the heading outline; and each day card speaks its weekday, which the desktop grid otherwise conveys only by column position
 
 ## Open Questions
