@@ -81,7 +81,7 @@ With more time I would add:
 - An E2E test stepping through the questionnaire to the schedule, though with every component unit tested I think it would be overkill here
 - Focus management on the return trip: submitting moves focus to the schedule so screen readers announce the result, but "Edit answers" returns to the form without an equivalent landing point
 
-## Post-submission Fixes
+## Post-MVP Fixes
 
 Issues found in a post-submission review pass, each fixed with the same red-green process as the original build:
 
